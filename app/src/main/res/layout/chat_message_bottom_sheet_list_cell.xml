@@ -49,7 +49,7 @@
             android:id="@+id/sip_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{model.sipUri, default=`sip:johndoe@sip.linphone.org`}"
+            android:text="@{model.sipUri, default=`sip:johndoe@pbx.percipia.net`}"
             android:visibility="@{model.showSipUri ? View.VISIBLE : View.GONE, default=gone}"
             android:textSize="12sp"
             android:textColor="?attr/color_main2_500"

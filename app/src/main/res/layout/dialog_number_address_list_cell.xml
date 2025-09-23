@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:text="@{model.displayedValue, default=`sip:johndoe@sip.linphone.org`}"
+            android:text="@{model.displayedValue, default=`sip:johndoe@pbx.percipia.net`}"
             android:textSize="14sp"
             android:maxLines="1"
             android:ellipsize="end"
