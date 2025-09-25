@@ -1,7 +1,7 @@
 job-android:
 
   stage: build
-  tags: [ "docker-android" ]
+  #tags: [ "docker-android" ]
   image: gitlab.linphone.org:4567/bc/public/linphone-android/bc-dev-android:20230414_bullseye_jdk_17_cleaned
 
   before_script:
@@ -11,20 +11,21 @@ job-android:
     - git config --global --add safe.directory /builds/BC/public/linphone-android
 
   script:
-    - scp -oStrictHostKeyChecking=no $DEPLOY_SERVER:$ANDROID_KEYSTORE_PATH app/
-    - scp -oStrictHostKeyChecking=no $DEPLOY_SERVER:$ANDROID_GOOGLE_SERVICES_PATH app/
-    - echo storePassword=$ANDROID_KEYSTORE_PASSWORD > keystore.properties
-    - echo keyPassword=$ANDROID_KEYSTORE_KEY_PASSWORD >> keystore.properties
-    - echo keyAlias=$ANDROID_KEYSTORE_KEY_ALIAS >> keystore.properties
-    - echo storeFile=$ANDROID_KEYSTORE_FILE >> keystore.properties
+    #- scp -oStrictHostKeyChecking=no $DEPLOY_SERVER:$ANDROID_KEYSTORE_PATH app/
+    #- scp -oStrictHostKeyChecking=no $DEPLOY_SERVER:$ANDROID_GOOGLE_SERVICES_PATH app/
+    #- echo storePassword=$ANDROID_KEYSTORE_PASSWORD > keystore.properties
+    #- echo keyPassword=$ANDROID_KEYSTORE_KEY_PASSWORD >> keystore.properties
+    #- echo keyAlias=$ANDROID_KEYSTORE_KEY_ALIAS >> keystore.properties
+    #- echo storeFile=$ANDROID_KEYSTORE_FILE >> keystore.properties
     - ./gradlew app:dependencies | grep org.linphone
     - ./gradlew clean
     - ./gradlew assembleDebug
-    - ./gradlew assembleRelease
+    #- ./gradlew assembleRelease
 
   artifacts:
     paths:
-      - ./app/build/outputs/apk/release/linphone-android-release-*.apk
+      - ./app/build/outputs/apk/debug/linphone-android-debug-*.apk
+      #- ./app/build/outputs/apk/release/linphone-android-release-*.apk
     when: always
     expire_in: 1 day
 
