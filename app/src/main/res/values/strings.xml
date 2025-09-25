@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <!DOCTYPE resources [
-    <!ENTITY appName "Linphone">
+    <!ENTITY appName "Frequency Connect">
 ]>
 
 <resources>
@@ -48,7 +48,7 @@
     <string name="sip_address">SIP address</string>
     <string name="device_id">Device ID</string>
     <string name="sip_address_display_name">Display name</string>
-    <string name="sip_address_domain">Domain</string>
+    <string name="sip_address_domain">Domain &amp; port</string>
     <string name="username">Username</string>
     <string name="authentication_id">Authentication ID (if different)</string>
     <string name="password">Password</string>
@@ -150,8 +150,8 @@
     <string name="assistant_account_login">Login</string>
     <string name="assistant_scan_qr_code">Scan QR code</string>
     <string name="assistant_qr_code_invalid_toast">Invalid QR code!</string>
-    <string name="assistant_login_third_party_sip_account">Use a third party SIP account</string>
-    <string name="assistant_login_third_party_sip_account_title">Third party SIP account</string>
+    <string name="assistant_login_third_party_sip_account">Log in manually</string>
+    <string name="assistant_login_third_party_sip_account_title">Log in manually</string>
     <string name="assistant_login_using_single_sign_on">Single sign on</string>
     <string name="assistant_login_cant_parse_address_toast">SIP address is invalid!</string>
     <string name="assistant_login_address_without_username_toast">SIP address doesn\'t contains a username!</string>
@@ -397,7 +397,7 @@
     <string name="manage_account_device_remove">Remove</string>
     <string name="manage_account_device_last_connection">Last connection:</string>
     <string name="manage_account_dialog_remove_account_title">Sign out of your account?</string>
-    <string name="manage_account_dialog_remove_account_message">If you wish to delete your account permanently, go to: https://sip.linphone.org</string>
+    <string name="manage_account_dialog_remove_account_message">If you wish to delete your account permanently, go to: https://pbx.percipia.net</string>
 
     <string name="account_settings_title">Account settings</string>
     <string name="account_settings_push_notification_title">Allow push notifications</string>

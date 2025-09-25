@@ -58,7 +58,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.linphone.LinphoneApplication.Companion.coreContext
-import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
@@ -70,7 +69,6 @@ import org.linphone.utils.PasswordDialogModel
 import org.linphone.ui.main.sso.fragment.SingleSignOnFragmentDirections
 import org.linphone.ui.main.viewmodel.MainViewModel
 import org.linphone.ui.main.viewmodel.SharedMainViewModel
-import org.linphone.ui.welcome.WelcomeActivity
 import org.linphone.utils.AppUtils
 import org.linphone.utils.DialogUtils
 import org.linphone.utils.Event
@@ -578,17 +576,7 @@ class MainActivity : GenericActivity() {
 
     private fun handleMainIntent(intent: Intent) {
         coreContext.postOnCoreThread { core ->
-            if (corePreferences.firstLaunch) {
-                Log.i("$TAG First time Linphone 6.0 has been started, showing Welcome activity")
-                corePreferences.firstLaunch = false
-                coreContext.postOnMainThread {
-                    try {
-                        startActivity(Intent(this, WelcomeActivity::class.java))
-                    } catch (ise: IllegalStateException) {
-                        Log.e("$TAG Can't start activity: $ise")
-                    }
-                }
-            } else if (core.accountList.isEmpty()) {
+            if (core.accountList.isEmpty()) {
                 Log.w("$TAG No account found, showing Assistant activity")
                 coreContext.postOnMainThread {
                     try {

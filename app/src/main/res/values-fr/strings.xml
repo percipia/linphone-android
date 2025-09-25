@@ -355,7 +355,7 @@
     <string name="manage_account_device_remove">Supprimer</string>
     <string name="manage_account_device_last_connection">Dernière connexion :</string>
     <string name="manage_account_dialog_remove_account_title">Se déconnecter du compte ?</string>
-    <string name="manage_account_dialog_remove_account_message">Si vous souhaitez supprimer définitivement votre compte rendez-vous sur : https://sip.linphone.org</string>
+    <string name="manage_account_dialog_remove_account_message">Si vous souhaitez supprimer définitivement votre compte rendez-vous sur : https://pbx.percipia.net</string>
 
     <string name="account_settings_title">Paramètres de compte</string>
     <string name="account_settings_push_notification_title">Activer les notifications push</string>

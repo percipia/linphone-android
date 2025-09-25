@@ -28,11 +28,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
@@ -86,14 +83,6 @@ class LandingFragment : GenericFragment() {
             }
         }
 
-        binding.setRegisterClickListener {
-            if (viewModel.conditionsAndPrivacyPolicyAccepted) {
-                goToRegisterFragment()
-            } else {
-                showAcceptConditionsAndPrivacyDialog(goToAccountCreate = true)
-            }
-        }
-
         binding.setQrCodeClickListener {
             if (findNavController().currentDestination?.id == R.id.landingFragment) {
                 val action =
@@ -104,24 +93,9 @@ class LandingFragment : GenericFragment() {
 
         binding.setThirdPartySipAccountLoginClickListener {
             if (viewModel.conditionsAndPrivacyPolicyAccepted) {
-                goToLoginThirdPartySipAccountFragment(false)
+                goToLoginThirdPartySipAccountFragment()
             } else {
                 showAcceptConditionsAndPrivacyDialog(goToThirdPartySipAccountLogin = true)
-            }
-        }
-
-        binding.setForgottenPasswordClickListener {
-            if (findNavController().currentDestination?.id == R.id.landingFragment) {
-                val action =
-                    LandingFragmentDirections.actionLandingFragmentToRecoverAccountFragment()
-                findNavController().navigate(action)
-            }
-        }
-
-        viewModel.showPassword.observe(viewLifecycleOwner) {
-            lifecycleScope.launch {
-                delay(50)
-                binding.password.setSelection(binding.password.text?.length ?: 0)
             }
         }
 
@@ -143,7 +117,7 @@ class LandingFragment : GenericFragment() {
 
         viewModel.skipLandingToThirdPartySipAccountEvent.observe(viewLifecycleOwner) {
             it.consume {
-                goToLoginThirdPartySipAccountFragment(true)
+                goToLoginThirdPartySipAccountFragment()
             }
         }
 
@@ -158,20 +132,9 @@ class LandingFragment : GenericFragment() {
         }
     }
 
-    private fun goToRegisterFragment() {
+    private fun goToLoginThirdPartySipAccountFragment() {
         if (findNavController().currentDestination?.id == R.id.landingFragment) {
-            val action = LandingFragmentDirections.actionLandingFragmentToRegisterFragment()
-            findNavController().navigate(action)
-        }
-    }
-
-    private fun goToLoginThirdPartySipAccountFragment(skipWarning: Boolean) {
-        if (findNavController().currentDestination?.id == R.id.landingFragment) {
-            val action = if (skipWarning) {
-                LandingFragmentDirections.actionLandingFragmentToThirdPartySipAccountLoginFragment()
-            } else {
-                LandingFragmentDirections.actionLandingFragmentToThirdPartySipAccountWarningFragment()
-            }
+            val action = LandingFragmentDirections.actionLandingFragmentToThirdPartySipAccountLoginFragment()
             findNavController().navigate(action)
         }
     }
@@ -200,11 +163,7 @@ class LandingFragment : GenericFragment() {
                 }
                 dialog.dismiss()
 
-                if (goToAccountCreate) {
-                    goToRegisterFragment()
-                } else if (goToThirdPartySipAccountLogin) {
-                    goToLoginThirdPartySipAccountFragment(false)
-                }
+                goToLoginThirdPartySipAccountFragment()
             }
         }
 
