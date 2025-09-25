@@ -1,16 +1,16 @@
 {
   "project_info": {
-    "project_number": "929724111839",
+    "project_number": "648564590219",
     "firebase_url": "https://linphone-android-8a563.firebaseio.com",
-    "project_id": "linphone-android-8a563",
-    "storage_bucket": "linphone-android-8a563.appspot.com"
+    "project_id": "frequency-connect",
+    "storage_bucket": "frequency-connect.appspot.com"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:929724111839:android:4662ea9a056188c4",
         "android_client_info": {
-          "package_name": "org.linphone"
+          "package_name": "com.percipia.frequencyconnect"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "929724111839-co5kffto4j7dets7oolvfv0056cvpfbl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "org.linphone",
+            "package_name": "com.percipia.frequencyconnect",
             "certificate_hash": "85463a95603f7b6331899b74b85d53d043dcd500"
           }
         },
@@ -37,7 +37,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:929724111839:android:3cf90ee1d2f8fcb6",
         "android_client_info": {
-          "package_name": "org.linphone.debug"
+          "package_name": "com.percipia.frequencyconnect.debug"
         }
       },
       "oauth_client": [
