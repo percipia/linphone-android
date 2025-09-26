@@ -39,7 +39,7 @@
                 android:src="@drawable/assistant_logo"
                 app:layout_constraintStart_toEndOf="@id/message"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/mountains"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title" />
 
             <ImageView
@@ -172,22 +172,9 @@
                 android:text="@string/assistant_third_party_sip_account_warning_ok"
                 app:layout_constraintWidth_max="@dimen/button_max_width"
                 app:layout_constraintTop_toBottomOf="@id/create_linphone_account"
-                app:layout_constraintBottom_toTopOf="@id/mountains"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@id/title"
                 app:layout_constraintEnd_toEndOf="@id/message" />
-
-            <ImageView
-                android:id="@+id/mountains"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:src="@drawable/mountains"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                android:contentDescription="@null"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:tint="?attr/color_main1_500" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

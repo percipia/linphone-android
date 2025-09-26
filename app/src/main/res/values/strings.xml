@@ -10,8 +10,8 @@
     <!-- Not translatable strings -->
     <string name="vertical_separator" translatable="false">|</string>
 
-    <string name="assistant_web_platform_link" translatable="false">subscribe.linphone.org</string>
-    <string name="assistant_linphone_contact_us_link" translatable="false">linphone.org/contact</string>
+    <string name="assistant_web_platform_link" translatable="false">percipia.com</string>
+    <string name="assistant_linphone_contact_us_link" translatable="false">percipia.com/contactus</string>
 
     <string name="notification_channel_call_id" translatable="false">linphone_6.0_notification_call_id</string>
     <string name="notification_channel_incoming_call_id" translatable="false">linphone_6.0_notification_incoming_call_id</string>
@@ -28,16 +28,16 @@
     <string name="emoji_tear" translatable="false">😢</string>
 
     <string name="help_about_open_source_licenses_title" translatable="false">GNU General Public License v3.0</string>
-    <string name="help_about_open_source_licenses_subtitle" translatable="false">© Belledonne Communications 2010-2025</string>
-    <string name="help_advanced_send_debug_logs_email_address" translatable="false">linphone-android@belledonne-communications.com</string>
+    <string name="help_about_open_source_licenses_subtitle" translatable="false">© Percipia 2025-2026</string>
+    <string name="help_advanced_send_debug_logs_email_address" translatable="false">mkravos@percipia.com</string>
 
-    <string name="website_contact_url" translatable="false">https://linphone.org/contact</string>
-    <string name="website_download_url" translatable="false">https://linphone.org/linphone-softphone</string>
+    <string name="website_contact_url" translatable="false">https://percipia.com/contactus</string>
+    <string name="website_download_url" translatable="false">https://percipia.com/connect</string>
     <string name="website_user_guide_url" translatable="false">https://linphone.org/en/docs/</string>
-    <string name="website_privacy_policy_url" translatable="false">https://linphone.org/en/privacy-policy</string>
-    <string name="website_terms_and_conditions_url" translatable="false">https://linphone.org/en/terms-of-use</string>
-    <string name="web_platform_register_email_url" translatable="false">https://subscribe.linphone.org/register/email</string>
-    <string name="web_platform_forgotten_password_url" translatable="false">https://subscribe.linphone.org</string>
+    <string name="website_privacy_policy_url" translatable="false">https://percipia.com/privacy</string>
+    <string name="website_terms_and_conditions_url" translatable="false">https://percipia.com/privacy</string>
+    <string name="web_platform_register_email_url" translatable="false">https://percipia.com/contactus</string>
+    <string name="web_platform_forgotten_password_url" translatable="false">https://percipia.com/contactus</string>
     <string name="website_translate_weblate_url" translatable="false">https://weblate.linphone.org/</string>
     <string name="website_open_source_licences_usage_url" translatable="false">https://wiki.linphone.org/xwiki/wiki/public/view/Linphone/Third%20party%20components%20/#Hlinphone-android</string>
     <string name="conversation_end_to_end_encrypted_bottom_sheet_link" translatable="false"><u>https://linphone.org/en/features/#security</u></string>
@@ -141,10 +141,10 @@
     <string name="media_player_generic_error_toast">Error trying to create media player</string>
 
     <!-- Assistant related string (account register / login / etc...) -->
-    <string name="assistant_dialog_general_terms_and_privacy_policy_title">General terms &amp; privacy policy</string>
+    <string name="assistant_dialog_general_terms_and_privacy_policy_title">Privacy policy</string>
     <string name="assistant_dialog_general_terms_label">general terms</string>
     <string name="assistant_dialog_privacy_policy_label">privacy policy</string>
-    <string name="assistant_dialog_general_terms_and_privacy_policy_message">By continuing, you accept our %1$s and %2$s.</string>
+    <string name="assistant_dialog_general_terms_and_privacy_policy_message">By continuing, you accept our %1$s.</string>
     <string name="assistant_dialog_confirm_phone_number_title">Confirm phone number</string>
     <string name="assistant_dialog_confirm_phone_number_message">Are you sure your phone number is %s?</string>
     <string name="assistant_account_login">Login</string>

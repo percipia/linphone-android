@@ -54,7 +54,6 @@ class AcceptConditionsAndPolicyDialogModel
         val privacyPolicy = AppUtils.getString(R.string.assistant_dialog_privacy_policy_label)
         val label = coreContext.context.getString(
             R.string.assistant_dialog_general_terms_and_privacy_policy_message,
-            generalTerms,
             privacyPolicy
         )
         val spannable = SpannableString(label)
