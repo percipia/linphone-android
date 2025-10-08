@@ -26,7 +26,7 @@ build-prod:
     - build-debug
   script:
     # Fetch keystore from CI/CD variables
-    - echo "$KEYSTORE_FILE" > bc-android.keystore
+    - echo "$KEYSTORE_FILE" > app/bc-android.keystore
     - echo "storePassword=$KEYSTORE_PASSWORD" > keystore.properties
     - echo "keyPassword=$KEY_PASSWORD" >> keystore.properties
     - echo "keyAlias=$KEY_ALIAS" >> keystore.properties
