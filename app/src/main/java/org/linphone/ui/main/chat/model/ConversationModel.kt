@@ -158,6 +158,7 @@ class ConversationModel
         override fun onSubjectChanged(chatRoom: ChatRoom, eventLog: EventLog) {
             Log.i("$TAG Conversation subject changed [${chatRoom.subject}]")
             subject.postValue(chatRoom.subject)
+            computeParticipants()
         }
 
         @WorkerThread
@@ -431,16 +432,20 @@ class ConversationModel
         }
 
         if (isGroup) {
-            val fakeFriend = coreContext.core.createFriend()
-            fakeFriend.name = chatRoom.subject
-            val model = ContactAvatarModel(fakeFriend)
-            model.defaultToConversationIcon.postValue(true)
-            model.updateSecurityLevelUsingConversation(chatRoom)
-            avatarModel.postValue(model)
+            if (avatarModel.value == null || avatarModel.value?.contactName != chatRoom.subject) {
+                val fakeFriend = coreContext.core.createFriend()
+                fakeFriend.name = chatRoom.subject
+                val model = ContactAvatarModel(fakeFriend)
+                model.defaultToConversationIcon.postValue(true)
+                model.updateSecurityLevelUsingConversation(chatRoom)
+                avatarModel.postValue(model)
+            }
         } else {
-            avatarModel.postValue(
-                coreContext.contactsManager.getContactAvatarModelForAddress(address)
-            )
+            val model = coreContext.contactsManager.getContactAvatarModelForAddress(address)
+            val oldModel = avatarModel.value
+            if (!model.compare(oldModel)) {
+                avatarModel.postValue(model)
+            }
         }
     }
 

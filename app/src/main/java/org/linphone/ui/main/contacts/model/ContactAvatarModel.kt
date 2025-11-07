@@ -20,6 +20,7 @@
 package org.linphone.ui.main.contacts.model
 
 import android.net.Uri
+import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.MutableLiveData
 import org.linphone.LinphoneApplication.Companion.coreContext
@@ -53,6 +54,8 @@ class ContactAvatarModel
 
     val isReadOnly = friend.isReadOnly
 
+    val isNative = !friend.nativeUri.isNullOrEmpty()
+
     val isFavourite = MutableLiveData<Boolean>()
 
     val lastPresenceInfo = MutableLiveData<String>()
@@ -82,6 +85,31 @@ class ContactAvatarModel
 
         update(address)
         refreshSortingName()
+    }
+
+    @AnyThread
+    fun compare(other: ContactAvatarModel?): Boolean {
+        if (other == null) return false
+
+        val picture = picturePath.value
+        val otherPicture = other.picturePath.value
+        if (picture != null && otherPicture != null && picture != otherPicture) {
+            return false
+        }
+
+        if (contactName != other.contactName) {
+            return false
+        }
+
+        if (id != other.id) {
+            return false
+        }
+
+        if (isFavourite.value != other.isFavourite.value) {
+            return false
+        }
+
+        return true
     }
 
     @WorkerThread

@@ -136,6 +136,7 @@ class ContactsListFragment : AbstractMainFragment() {
 
         binding.contactsList.setHasFixedSize(true)
         binding.contactsList.layoutManager = LinearLayoutManager(requireContext())
+        binding.contactsList.outlineProvider = outlineProvider
 
         binding.favouritesContactsList.setHasFixedSize(true)
         val favouritesLayoutManager = LinearLayoutManager(requireContext())
@@ -144,6 +145,10 @@ class ContactsListFragment : AbstractMainFragment() {
 
         configureAdapter(adapter)
         configureAdapter(favouritesAdapter)
+
+        listViewModel.isListFiltered.observe(viewLifecycleOwner) { filtered ->
+            binding.contactsList.clipToOutline = filtered
+        }
 
         listViewModel.contactsList.observe(
             viewLifecycleOwner
@@ -282,6 +287,7 @@ class ContactsListFragment : AbstractMainFragment() {
                     model.isFavourite.value == true,
                     model.isStored,
                     isReadOnly = model.isReadOnly,
+                    isNative = model.isNative,
                     { // onDismiss
                         adapter.resetSelection()
                     },
