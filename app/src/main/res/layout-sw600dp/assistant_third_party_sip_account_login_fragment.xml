@@ -32,19 +32,6 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/logo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@null"
-                    android:src="@drawable/assistant_logo"
-                    app:layout_constraintStart_toEndOf="@id/advanced_settings"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/title" />
-
-                <ImageView
                     android:id="@+id/back"
                     android:onClick="@{backClickListener}"
                     android:layout_width="@dimen/top_bar_height"
@@ -294,29 +281,28 @@
                     app:layout_constraintStart_toStartOf="@id/title" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/section_header_style"
-                    android:onClick="@{() -> viewModel.toggleAdvancedSettingsExpand()}"
                     android:id="@+id/advanced_settings"
+                    style="@style/section_header_style"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
                     android:layout_marginTop="35dp"
+                    android:drawableEnd="@{viewModel.expandAdvancedSettings ? @drawable/caret_up : @drawable/caret_down, default=@drawable/caret_up}"
+                    android:drawablePadding="10dp"
+                    android:drawableTint="?attr/color_main2_600"
+                    android:onClick="@{() -> viewModel.toggleAdvancedSettingsExpand()}"
                     android:padding="5dp"
                     android:text="@string/settings_advanced_title"
-                    android:drawableEnd="@{viewModel.expandAdvancedSettings ? @drawable/caret_up : @drawable/caret_down, default=@drawable/caret_up}"
-                    android:drawableTint="?attr/color_main2_600"
-                    android:drawablePadding="10dp"
-                    app:layout_constraintWidth_max="@dimen/button_max_width"
                     app:layout_constraintStart_toEndOf="@id/title"
-                    app:layout_constraintEnd_toStartOf="@id/logo"
-                    app:layout_constraintTop_toBottomOf="@id/title" />
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    app:layout_constraintWidth_max="@dimen/button_max_width" />
 
                 <androidx.constraintlayout.widget.Group
                     android:id="@+id/advanced_settings_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:constraint_referenced_ids="authentication_id_label, authentication_id, proxy, proxy_label, outbound_proxy_label, outbound_proxy, outbound_proxy_tooltip"
-                    android:visibility="@{viewModel.expandAdvancedSettings ? View.VISIBLE : View.GONE, default=gone}" />
+                    android:visibility="@{viewModel.expandAdvancedSettings ? View.VISIBLE : View.GONE, default=gone}"
+                    app:constraint_referenced_ids="authentication_id_label, authentication_id, proxy, proxy_label, outbound_proxy_label, outbound_proxy, outbound_proxy_tooltip" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/header_style"
