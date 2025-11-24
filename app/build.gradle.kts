@@ -100,8 +100,8 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 100003 // 1.00.003
-        versionName = "0.0.3"
+        versionCode = 100004 // 1.00.004
+        versionName = "0.0.4"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
 
@@ -169,6 +169,7 @@ android {
 
         getByName("release") {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
