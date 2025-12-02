@@ -1,5 +1,3 @@
-image: gitlab.linphone.org:4567/bc/public/linphone-android/bc-dev-android:20230414_bullseye_jdk_17_cleaned # TODO: maybe build our own image from linphone-android/docker-files/
-
 before_script:
   - if ! [ -z ${ANDROID_SETTINGS_GRADLE+x} ]; then echo "$ANDROID_SETTINGS_GRADLE" > settings.gradle.kts; fi
   - git config --global --add safe.directory /builds/frequency-connect/android-app
@@ -7,10 +5,23 @@ before_script:
   - ./gradlew clean
 
 stages:
+ - docker
  - debug
  - prod
 
+build-docker-image:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -f docker-files/bc-dev-android-36 -t bc-dev-android:36 .
+    - docker tag bc-dev-android:36 $CI_REGISTRY_IMAGE/bc-dev-android:36
+    - docker push $CI_REGISTRY_IMAGE/bc-dev-android:36
+
 build-debug:
+  image: $CI_REGISTRY_IMAGE/bc-dev-android:36
   stage: debug
   script:
     - ./gradlew assembleDebug
@@ -21,6 +32,7 @@ build-debug:
     expire_in: 1 day
 
 build-prod:
+  image: $CI_REGISTRY_IMAGE/bc-dev-android:36
   stage: prod
   dependencies:
     - build-debug
