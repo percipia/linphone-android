@@ -1,9 +1,3 @@
-before_script:
-  - if ! [ -z ${ANDROID_SETTINGS_GRADLE+x} ]; then echo "$ANDROID_SETTINGS_GRADLE" > settings.gradle.kts; fi
-  - git config --global --add safe.directory /builds/frequency-connect/android-app
-  - ./gradlew app:dependencies | grep org.linphone
-  - ./gradlew clean
-
 stages:
  - docker
  - debug
@@ -23,6 +17,11 @@ build-docker-image:
 build-debug:
   image: $CI_REGISTRY_IMAGE/bc-dev-android:36
   stage: debug
+  before_script:
+    - if ! [ -z ${ANDROID_SETTINGS_GRADLE+x} ]; then echo "$ANDROID_SETTINGS_GRADLE" > settings.gradle.kts; fi
+    - git config --global --add safe.directory /builds/frequency-connect/android-app
+    - ./gradlew app:dependencies | grep org.linphone
+    - ./gradlew clean
   script:
     - ./gradlew assembleDebug
   artifacts:
@@ -36,6 +35,11 @@ build-prod:
   stage: prod
   dependencies:
     - build-debug
+  before_script:
+    - if ! [ -z ${ANDROID_SETTINGS_GRADLE+x} ]; then echo "$ANDROID_SETTINGS_GRADLE" > settings.gradle.kts; fi
+    - git config --global --add safe.directory /builds/frequency-connect/android-app
+    - ./gradlew app:dependencies | grep org.linphone
+    - ./gradlew clean
   script:
     # Fetch keystore from CI/CD variables
     - echo "$KEYSTORE_FILE" | base64 -d > app/bc-android.keystore
