@@ -100,8 +100,8 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 100005 // 1.00.005
-        versionName = "0.0.5"
+        versionCode = 100006 // 1.00.006
+        versionName = "0.0.6"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
 
@@ -213,7 +213,6 @@ android {
 
 dependencies {
     implementation(libs.androidx.annotations)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraint.layout)
     implementation(libs.androidx.core.ktx)

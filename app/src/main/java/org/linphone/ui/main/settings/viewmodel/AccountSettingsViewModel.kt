@@ -155,7 +155,9 @@ class AccountSettingsViewModel
                 selectedTransport.postValue(transportType)
 
                 sipProxyServer.postValue(params.serverAddress?.asStringUriOnly())
-                outboundProxyServer.postValue(params.routesAddresses.first().asStringUriOnly())
+                if (params.routesAddresses.size > 0) {
+                    outboundProxyServer.postValue(params.routesAddresses.first().asStringUriOnly())
+                }
 
                 natPolicy = params.natPolicy ?: core.createNatPolicy()
                 stunServer.postValue(natPolicy.stunServer)
@@ -240,9 +242,12 @@ class AccountSettingsViewModel
                         newParams.setRoutesAddresses(arrayOf(outboundProxyAddress))
                     } else {
                         Log.e("$TAG Failed to parse outbound proxy server!")
+                        // Clear routes if parsing failed
+                        newParams.setRoutesAddresses(emptyArray())
                     }
                 } else {
-                    newParams.setRoutesAddresses(null)
+                    // Use empty array instead of null to clear routes
+                    newParams.setRoutesAddresses(emptyArray())
                 }
 
                 if (::natPolicy.isInitialized) {
