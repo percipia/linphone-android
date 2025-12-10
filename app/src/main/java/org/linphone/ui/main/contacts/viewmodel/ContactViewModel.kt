@@ -181,7 +181,7 @@ class ContactViewModel
             if (!::friend.isInitialized) return
 
             val found = coreContext.contactsManager.findContactById(refKey)
-            if (found != null && found != friend) {
+            if (found != null) {
                 Log.i(
                     "$TAG Found contact [${found.name}] matching ref key [$refKey] after contacts have been loaded/updated"
                 )
@@ -321,13 +321,10 @@ class ContactViewModel
         contact.postValue(ContactAvatarModel(friend))
 
         val organization = friend.organization
-        if (!organization.isNullOrEmpty()) {
-            company.postValue(organization!!)
-        }
+        company.postValue(organization.orEmpty())
+
         val jobTitle = friend.jobTitle
-        if (!jobTitle.isNullOrEmpty()) {
-            title.postValue(jobTitle!!)
-        }
+        title.postValue(jobTitle.orEmpty())
 
         val addressesAndNumbers = friend.getListOfSipAddressesAndPhoneNumbers(listener)
         sipAddressesAndPhoneNumbers.postValue(addressesAndNumbers)
