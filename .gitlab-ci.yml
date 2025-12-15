@@ -10,9 +10,14 @@ build-docker-image:
   stage: docker
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -f docker-files/bc-dev-android-36 -t bc-dev-android:36 .
-    - docker tag bc-dev-android:36 $CI_REGISTRY_IMAGE/bc-dev-android:36
-    - docker push $CI_REGISTRY_IMAGE/bc-dev-android:36
+    - |
+      if docker manifest inspect $CI_REGISTRY_IMAGE/bc-dev-android:36 >/dev/null 2>&1; then
+        echo "Image $CI_REGISTRY_IMAGE/bc-dev-android:36 already exists. Skipping build and push.";
+      else
+        docker build -f docker-files/bc-dev-android-36 -t bc-dev-android:36 .;
+        docker tag bc-dev-android:36 $CI_REGISTRY_IMAGE/bc-dev-android:36;
+        docker push $CI_REGISTRY_IMAGE/bc-dev-android:36;
+      fi
 
 build-debug:
   image: $CI_REGISTRY_IMAGE/bc-dev-android:36

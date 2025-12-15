@@ -39,7 +39,7 @@ if (firebaseCloudMessagingAvailable) {
     println("google-services.json not found, disabling CloudMessaging feature")
 }
 
-String taggedRelease = System.getenv('CI_COMMIT_TAG')
+val taggedRelease: String? = System.getenv("CI_COMMIT_TAG")
 var gitBranch = ByteArrayOutputStream()
 var gitVersion = "6.1.0-alpha"
 
@@ -110,7 +110,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = debugVersionCode
-        versionName = debugVersionCode
+        versionName = debugVersionName
 
         // Override versionCode and versionName for tagged releases
         if (taggedRelease != null) {
