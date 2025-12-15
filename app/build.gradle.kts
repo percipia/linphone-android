@@ -39,6 +39,7 @@ if (firebaseCloudMessagingAvailable) {
     println("google-services.json not found, disabling CloudMessaging feature")
 }
 
+var taggedRelease = System.getenv('CI_COMMIT_TAG')
 var gitBranch = ByteArrayOutputStream()
 var gitVersion = "6.1.0-alpha"
 
@@ -108,8 +109,14 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = releaseVersionCode
-        versionName = releaseVersionName
+        versionCode = debugVersionCode
+        versionName = debugVersionCode
+
+        // Override versionCode and versionName for tagged releases
+        if (taggedRelease != null) {
+            versionCode = releaseVersionCode
+            versionName = releaseVersionName
+        }
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
 
@@ -121,22 +128,6 @@ android {
 
     applicationVariants.all {
         val variant = this
-        
-        // Set version code and name based on build type
-        when (variant.buildType.name) {
-            "debug" -> {
-                variant.outputs.forEach { output ->
-                    output.versionCodeOverride = debugVersionCode
-                    output.versionNameOverride = debugVersionName
-                }
-            }
-            "release" -> {
-                variant.outputs.forEach { output ->
-                    output.versionCodeOverride = releaseVersionCode
-                    output.versionNameOverride = releaseVersionName
-                }
-            }
-        }
         
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
