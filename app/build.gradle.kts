@@ -121,6 +121,23 @@ android {
 
     applicationVariants.all {
         val variant = this
+        
+        // Set version code and name based on build type
+        when (variant.buildType.name) {
+            "debug" -> {
+                variant.outputs.forEach { output ->
+                    output.versionCodeOverride = debugVersionCode
+                    output.versionNameOverride = debugVersionName
+                }
+            }
+            "release" -> {
+                variant.outputs.forEach { output ->
+                    output.versionCodeOverride = releaseVersionCode
+                    output.versionNameOverride = releaseVersionName
+                }
+            }
+        }
+        
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
@@ -153,8 +170,6 @@ android {
             if (useDifferentPackageNameForDebugBuild) {
                 applicationIdSuffix = ".debug"
             }
-            versionCode = debugVersionCode
-            versionName = debugVersionName
             isDebuggable = true
             isJniDebuggable = true
 
