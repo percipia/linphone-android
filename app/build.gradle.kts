@@ -17,6 +17,14 @@ plugins {
 val packageName = "com.percipia.frequencyconnect"
 val useDifferentPackageNameForDebugBuild = false
 
+// Debug build versions are prefixed with 1 to differentiate them from release builds
+val debugVersionCode = 100007 // 1.00.007
+val debugVersionName = "1.0.7"
+
+// Release build versions are prefixed with 2 as per above
+val releaseVersionCode = 200007 // 2.00.007
+val releaseVersionName = "2.0.7"
+
 val sdkPath = providers.gradleProperty("LinphoneSdkBuildDir").get()
 val googleServices = File(projectDir.absolutePath + "/google-services.json")
 val linphoneLibs = File("$sdkPath/libs/")
@@ -100,8 +108,8 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 100006 // 1.00.006
-        versionName = "0.0.6"
+        versionCode = releaseVersionCode
+        versionName = releaseVersionName
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
 
@@ -145,6 +153,8 @@ android {
             if (useDifferentPackageNameForDebugBuild) {
                 applicationIdSuffix = ".debug"
             }
+            versionCode = debugVersionCode
+            versionName = debugVersionName
             isDebuggable = true
             isJniDebuggable = true
 
