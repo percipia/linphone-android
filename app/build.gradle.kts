@@ -39,7 +39,7 @@ if (firebaseCloudMessagingAvailable) {
     println("google-services.json not found, disabling CloudMessaging feature")
 }
 
-var taggedRelease = System.getenv('CI_COMMIT_TAG')
+String taggedRelease = System.getenv('CI_COMMIT_TAG')
 var gitBranch = ByteArrayOutputStream()
 var gitVersion = "6.1.0-alpha"
 
