@@ -27,6 +27,7 @@ import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.core.AVPFMode
 import org.linphone.core.Account
+import org.linphone.core.Address
 import org.linphone.core.AuthInfo
 import org.linphone.core.Factory
 import org.linphone.core.NatPolicy
@@ -155,7 +156,7 @@ class AccountSettingsViewModel
                 selectedTransport.postValue(transportType)
 
                 sipProxyServer.postValue(params.serverAddress?.asStringUriOnly())
-                if (params.routesAddresses.size > 0) {
+                if (params.routesAddresses.isNotEmpty()) {
                     outboundProxyServer.postValue(params.routesAddresses.first().asStringUriOnly())
                 }
 
@@ -246,8 +247,7 @@ class AccountSettingsViewModel
                         newParams.setRoutesAddresses(emptyArray())
                     }
                 } else {
-                    // Use empty array instead of null to clear routes
-                    newParams.setRoutesAddresses(emptyArray())
+                    newParams.setRoutesAddresses(arrayOf<Address>())
                 }
 
                 if (::natPolicy.isInitialized) {
