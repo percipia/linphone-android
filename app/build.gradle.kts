@@ -19,11 +19,10 @@ val useDifferentPackageNameForDebugBuild = false
 
 // Debug build versions are prefixed with 1 to differentiate them from release builds
 val debugVersionCode = 100007 // 1.00.007
-val debugVersionName = "1.0.7"
-
-// Release build versions are prefixed with 2 as per above
+// Production build versions are prefixed with 2 as per above
 val releaseVersionCode = 200007 // 2.00.007
-val releaseVersionName = "2.0.7"
+// Version name is the same for both debug and release builds
+val appVersionName = "2.0.7"
 
 val sdkPath = providers.gradleProperty("LinphoneSdkBuildDir").get()
 val googleServices = File(projectDir.absolutePath + "/google-services.json")
@@ -110,12 +109,12 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = debugVersionCode
-        versionName = debugVersionName
+        versionName = appVersionName + "-debug"
 
         // Override versionCode and versionName for tagged releases
         if (taggedRelease != null) {
             versionCode = releaseVersionCode
-            versionName = releaseVersionName
+            versionName = appVersionName
         }
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
