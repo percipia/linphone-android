@@ -25,6 +25,7 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
+import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.MediatorLiveData
@@ -151,6 +152,8 @@ class MessageModel
 
     val isSelected = MutableLiveData<Boolean>()
 
+    private var rawTextContent: String = ""
+
     // Below are for conferences info
     val meetingFound = MutableLiveData<Boolean>()
 
@@ -216,26 +219,12 @@ class MessageModel
     private val chatMessageListener = object : ChatMessageListenerStub() {
         @WorkerThread
         override fun onMsgStateChanged(message: ChatMessage, messageState: ChatMessage.State?) {
+            Log.i("$TAG Chat message [${message.messageId}] state changed to [$messageState]")
             if (messageState != ChatMessage.State.FileTransferDone && messageState != ChatMessage.State.FileTransferInProgress) {
                 statusIcon.postValue(LinphoneUtils.getChatIconResId(chatMessage.state))
 
                 if (messageState == ChatMessage.State.Displayed) {
                     isRead = chatMessage.isRead
-                }
-            } else if (messageState == ChatMessage.State.FileTransferDone) {
-                Log.i("$TAG File transfer is done")
-                transferringFileModel?.updateTransferProgress(-1)
-                transferringFileModel = null
-                if (!allFilesDownloaded) {
-                    computeContentsList()
-                } else {
-                    for (content in message.contents) {
-                        if (content.isVoiceRecording) {
-                            Log.i("$TAG File transfer done, updating voice record info")
-                            computeVoiceRecordContent(content)
-                            break
-                        }
-                    }
                 }
             }
             isInError.postValue(messageState == ChatMessage.State.NotDelivered)
@@ -244,22 +233,7 @@ class MessageModel
         @WorkerThread
         override fun onFileTransferTerminated(message: ChatMessage, content: Content) {
             Log.i("$TAG File [${content.name}] from message [${message.messageId}] transfer terminated")
-
-            // Never do auto media export for ephemeral messages!
-            if (corePreferences.makePublicMediaFilesDownloaded && !message.isEphemeral) {
-                val path = content.filePath
-                if (path.isNullOrEmpty()) return
-
-                val mime = "${content.type}/${content.subtype}"
-                val mimeType = FileUtils.getMimeType(mime)
-                when (mimeType) {
-                    FileUtils.MimeType.Image, FileUtils.MimeType.Video, FileUtils.MimeType.Audio -> {
-                        Log.i("$TAG Exporting file path [$path] to the native media gallery")
-                        onFileToExportToNativeGallery?.invoke(path)
-                    }
-                    else -> {}
-                }
-            }
+            fileTransferTerminated(message, content)
         }
 
         @WorkerThread
@@ -434,6 +408,11 @@ class MessageModel
             chatMessage.fromAddress
         )
         avatarModel.postValue(avatar)
+    }
+
+    @AnyThread
+    fun getRawTextContent(): String {
+        return rawTextContent
     }
 
     @WorkerThread
@@ -686,10 +665,10 @@ class MessageModel
 
     @WorkerThread
     private fun computeTextContent(content: Content, highlight: String) {
-        val textContent = content.utf8Text.orEmpty().trim()
-        val spannableBuilder = SpannableStringBuilder(textContent)
+        rawTextContent = content.utf8Text.orEmpty().trim()
+        val spannableBuilder = SpannableStringBuilder(rawTextContent)
 
-        val emojiOnly = AppUtils.isTextOnlyContainsEmoji(textContent)
+        val emojiOnly = AppUtils.isTextOnlyContainsEmoji(rawTextContent)
         isTextEmoji.postValue(emojiOnly)
         if (emojiOnly) {
             text.postValue(spannableBuilder)
@@ -698,7 +677,7 @@ class MessageModel
 
         // Check for search
         if (highlight.isNotEmpty()) {
-            val indexStart = textContent.indexOf(highlight, 0, ignoreCase = true)
+            val indexStart = rawTextContent.indexOf(highlight, 0, ignoreCase = true)
             if (indexStart >= 0) {
                 isTextHighlighted = true
                 val indexEnd = indexStart + highlight.length
@@ -713,12 +692,12 @@ class MessageModel
 
         // Check for mentions
         val chatRoom = chatMessage.chatRoom
-        val matcher = Pattern.compile(MENTION_REGEXP).matcher(textContent)
+        val matcher = Pattern.compile(MENTION_REGEXP).matcher(rawTextContent)
         var offset = 0
         while (matcher.find()) {
             val start = matcher.start()
             val end = matcher.end()
-            val source = textContent.subSequence(start + 1, end) // +1 to remove @
+            val source = rawTextContent.subSequence(start + 1, end) // +1 to remove @
             Log.d("$TAG Found mention [$source]")
 
             // Find address matching username
@@ -1058,5 +1037,38 @@ class MessageModel
         Log.i(
             "$TAG Found voice record with path [$voiceRecordPath] and duration [$formattedDuration]"
         )
+    }
+
+    @WorkerThread
+    private fun fileTransferTerminated(message: ChatMessage, content: Content) {
+        // Never do auto media export for ephemeral messages!
+        if (corePreferences.makePublicMediaFilesDownloaded && !message.isEphemeral) {
+            val path = content.filePath
+            if (path.isNullOrEmpty()) return
+
+            val mime = "${content.type}/${content.subtype}"
+            val mimeType = FileUtils.getMimeType(mime)
+            when (mimeType) {
+                FileUtils.MimeType.Image, FileUtils.MimeType.Video, FileUtils.MimeType.Audio -> {
+                    Log.i("$TAG Exporting file path [$path] to the native media gallery")
+                    onFileToExportToNativeGallery?.invoke(path)
+                }
+                else -> {}
+            }
+        }
+
+        transferringFileModel?.updateTransferProgress(-1)
+        transferringFileModel = null
+        if (!allFilesDownloaded) {
+            computeContentsList()
+        } else {
+            for (content in message.contents) {
+                if (content.isVoiceRecording) {
+                    Log.i("$TAG File transfer done, updating voice record info")
+                    computeVoiceRecordContent(content)
+                    break
+                }
+            }
+        }
     }
 }

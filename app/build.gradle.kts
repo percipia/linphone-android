@@ -18,11 +18,11 @@ val packageName = "com.percipia.frequencyconnect"
 val useDifferentPackageNameForDebugBuild = false
 
 // Debug build versions are prefixed with 1 to differentiate them from release builds
-val debugVersionCode = 100007 // 1.00.007
+val debugVersionCode = 100008 // 1.00.008
 // Production build versions are prefixed with 2 as per above
-val releaseVersionCode = 200007 // 2.00.007
+val releaseVersionCode = 200008 // 2.00.008
 // Version name is the same for both debug and release builds
-val appVersionName = "2.0.7"
+val appVersionName = "2.0.8"
 
 val sdkPath = providers.gradleProperty("LinphoneSdkBuildDir").get()
 val googleServices = File(projectDir.absolutePath + "/google-services.json")

@@ -21,6 +21,7 @@ Group changes to describe their impact on the project, as follows:
 - Support right click on some items to open bottom sheet/menu
 - Added toggle speaker action in active call notification
 - Increased text size for chat messages that only contains emoji(s)
+- Use user-input to filter participants list after typing "@" in conversation send area
 - Handle read-only CardDAV address books, disable edit/delete menus for contacts in read-only FriendList
 - Added swipe/pull to refresh on contacts list of a CardDAV addressbook has been configured to force the synchronization
 - Show information to user when filtering contacts doesn't show them all and user may have to refine it's search
@@ -29,6 +30,7 @@ Group changes to describe their impact on the project, as follows:
   - one for user to choose whether to sort contacts by first name or last name
   - one to hide contacts that have neither a SIP address nor a phone number
   - one to let app auto-answer call with video sending already enabled
+  - one to let edit native contacts Linphone copy in-app instead of opening native addressbook third party app
 - Added a vu meter for recording & playback volumes (must be enabled in developer settings)
 - Added support for HDMI audio devices
 
@@ -36,6 +38,7 @@ Group changes to describe their impact on the project, as follows:
 - No longer follow TelecomManager audio endpoint during calls, using our own routing policy
 - Removing an account will also remove all related data in the local database (auth info, call logs, conversations, meetings, etc...)
 - Hide SIP address/phone number picker dialog if contact has exactly one SIP address matching both the app default domain & the currently selected account domain
+- Hide SIP address associated to phone number through presence mecanism in contact details & editor views.
 - Improved UI on tablets with screen sw600dp and higher, will look more like our desktop app
 - Improved navigation within app when using a keyboard
 - Now loading media/documents contents in conversation by chunks (instead of all of them at once)
@@ -49,17 +52,35 @@ Group changes to describe their impact on the project, as follows:
 - Permission fragment will only show missing ones
 - Added more info into StartupListener logs
 - Updated password forgotten procedure, will use online account manager platform
-- Added back "large heap" to AndroidManifest
 
 ### Fixed
-- No audio focus & wrong audio manager mode when TelecomManager isn't supported by device
+- Copy raw message content instead of modified one when it contains a participant mention ("@username")
+
+## [6.0.21] - 2025-12-16
+
+### Added
+- Allow linphone-config: scheme URIs in in-app QR code scanner
+
+### Changed
+- Workaround for audio focus & audio manager mode on devices that do not support TelecomManager APIs
+- Set front camera as default after using back camera when scanning a QR code
+- Added back largeHeap flag in AndroidManifest.xml
+
+### Fixed
+- Fixed call recording indicator not showing local record in progress in case UPDATE isn't answered
+- Fixed native addressbook reload when a contact is updated in the OS default app
+- Fixed issue with linphone-config scheme URIs if scheme is followed by "//"
+- Fixed Job & Company contact field not updated if field content was removed
+- Fixed local avatar not displayed when calling ourselves
+- Prevent crashes due to some ActivityNotFound exceptions
+- Prevent crash due to empty clipboard on some devices
 
 ## [6.0.20] - 2025-11-21
 
 ### Changed
 - Added shrink resources to release config in gradle
 
-### Fixed
+### Fixed
 - Remove AuthInfo when configuring a CardDAV friend list if synchronization fails
 - Added missing toast when starting a group call or meeting if there's an issue
 - Fixed crash in RecordingPlayerFragment due to used lateinit property before it's initialized
@@ -340,7 +361,7 @@ Group changes to describe their impact on the project, as follows:
 - Reverted the way of playing incoming call ringone (you may have to configure your own ringtone again), was causing various issues depending on devices/firmwares
 - Show all call history entries if only one account is configured (workaround for missing history for now until a proper fix will be done in SDK)
 
-### Fixed
+### Fixed
 - Issue preventing bluetooth Hearing Aids from working properly (and fixed earpiece/hearing aids icon)
 - Prevent Qr Code scanner to use static picture camera
 - Prevent user from connecting the same account multiple times
