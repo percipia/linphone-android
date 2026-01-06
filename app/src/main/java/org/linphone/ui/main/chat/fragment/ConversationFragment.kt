@@ -94,6 +94,7 @@ import org.linphone.utils.hideKeyboard
 import org.linphone.utils.setKeyboardInsetListener
 import org.linphone.utils.showKeyboard
 import androidx.core.net.toUri
+import org.linphone.ui.main.chat.adapter.ConversationParticipantsAdapter
 import org.linphone.ui.main.chat.model.MessageDeleteDialogModel
 
 @UiThread
@@ -113,6 +114,8 @@ open class ConversationFragment : SlidingPaneChildFragment() {
     private lateinit var messageLongPressViewModel: ChatMessageLongPressViewModel
 
     private lateinit var adapter: ConversationEventAdapter
+
+    private lateinit var participantsAdapter: ConversationParticipantsAdapter
 
     private lateinit var bottomSheetAdapter: MessageBottomSheetAdapter
 
@@ -395,6 +398,7 @@ open class ConversationFragment : SlidingPaneChildFragment() {
         super.onCreate(savedInstanceState)
 
         adapter = ConversationEventAdapter()
+        participantsAdapter = ConversationParticipantsAdapter()
         headerItemDecoration = RecyclerViewHeaderDecoration(
             requireContext(),
             adapter,
@@ -466,6 +470,10 @@ open class ConversationFragment : SlidingPaneChildFragment() {
         layoutManager.stackFromEnd = true
         binding.eventsList.layoutManager = layoutManager
 
+        binding.sendArea.participants.participantsList.setHasFixedSize(true)
+        val participantsLayoutManager = LinearLayoutManager(requireContext())
+        binding.sendArea.participants.participantsList.layoutManager = participantsLayoutManager
+
         val callbacks = RecyclerViewSwipeUtilsCallback(
             R.drawable.reply,
             ConversationEventAdapter.EventViewHolder::class.java
@@ -486,6 +494,7 @@ open class ConversationFragment : SlidingPaneChildFragment() {
                     if (chatMessageModel.hasBeenRetracted.value == true) { // Don't allow to reply to retracted messages
                         // TODO: notify user?
                     } else {
+                        viewModel.closeSearchBar()
                         sendMessageViewModel.replyToMessage(chatMessageModel)
                         // Open keyboard & focus edit text
                         binding.sendArea.messageToSend.showKeyboard()
@@ -764,6 +773,14 @@ open class ConversationFragment : SlidingPaneChildFragment() {
             }
         }
 
+        sendMessageViewModel.participants.observe(viewLifecycleOwner) {
+            participantsAdapter.submitList(it)
+
+            if (binding.sendArea.participants.participantsList.adapter != participantsAdapter) {
+                binding.sendArea.participants.participantsList.adapter = participantsAdapter
+            }
+        }
+
         viewModel.focusSearchBarEvent.observe(viewLifecycleOwner) {
             it.consume { show ->
                 if (show) {
@@ -880,6 +897,7 @@ open class ConversationFragment : SlidingPaneChildFragment() {
             it.consume {
                 val model = messageLongPressViewModel.messageModel.value
                 if (model != null) {
+                    viewModel.closeSearchBar()
                     sendMessageViewModel.editMessage(model)
 
                     // Open keyboard & focus edit text
@@ -896,6 +914,7 @@ open class ConversationFragment : SlidingPaneChildFragment() {
             it.consume {
                 val model = messageLongPressViewModel.messageModel.value
                 if (model != null) {
+                    viewModel.closeSearchBar()
                     sendMessageViewModel.replyToMessage(model)
                     // Open keyboard & focus edit text
                     binding.sendArea.messageToSend.showKeyboard()
@@ -922,6 +941,9 @@ open class ConversationFragment : SlidingPaneChildFragment() {
             it.consume {
                 val model = messageLongPressViewModel.messageModel.value
                 if (model != null) {
+                    viewModel.closeSearchBar()
+                    sendMessageViewModel.cancelReply()
+
                     // Remove observer before setting the message to forward
                     // as we don't want to forward it in this chat room
                     sharedViewModel.messageToForwardEvent.removeObservers(viewLifecycleOwner)
