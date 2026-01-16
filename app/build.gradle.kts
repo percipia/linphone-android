@@ -200,20 +200,20 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     // Ensure Kotlin and Java compile to the same JVM target.
-    // Use Kotlin JVM toolchain to align Kotlin compiler with Java 21.
+    // Use Kotlin JVM toolchain to align Kotlin compiler with Java 17.
     kotlin {
-        jvmToolchain(21)
+        jvmToolchain(17)
     }
 
     // Set JVM target using the modern compilerOptions DSL
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_21)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
