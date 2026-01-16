@@ -152,6 +152,8 @@ class ConversationViewModel
 
     private var latestMatch: EventLog? = null
 
+    private var latestMatchModel: MessageModel? = null
+
     private val chatRoomListener = object : ChatRoomListenerStub() {
         @WorkerThread
         override fun onConferenceJoined(chatRoom: ChatRoom, eventLog: EventLog) {
@@ -194,17 +196,6 @@ class ConversationViewModel
                 }
             }
             Log.i("$TAG Conversation was marked as read")
-        }
-
-        @WorkerThread
-        override fun onChatMessageSending(chatRoom: ChatRoom, eventLog: EventLog) {
-            val message = eventLog.chatMessage
-            Log.i("$TAG Message [$message] is being sent, marking conversation as read")
-
-            // Prevents auto scroll to go to latest received message
-            chatRoom.markAsRead()
-
-            addEvents(arrayOf(eventLog))
         }
 
         @WorkerThread
@@ -392,20 +383,17 @@ class ConversationViewModel
 
     @UiThread
     fun closeSearchBar() {
+        coreContext.postOnCoreThread {
+            latestMatchModel?.highlightText("")
+            latestMatchModel = null
+        }
+
         searchFilter.value = ""
         searchBarVisible.value = false
         focusSearchBarEvent.value = Event(false)
         latestMatch = null
         canSearchDown.value = false
         canSearchUp.value = false
-
-        coreContext.postOnCoreThread {
-            for (eventLog in eventsList) {
-                if ((eventLog.model as? MessageModel)?.isTextHighlighted == true) {
-                    eventLog.model.highlightText("")
-                }
-            }
-        }
     }
 
     @UiThread
@@ -622,6 +610,19 @@ class ConversationViewModel
         }
     }
 
+    @UiThread
+    fun addSentMessageToEventsList(message: ChatMessage) {
+        coreContext.postOnCoreThread {
+            val eventLog = message.eventLog
+            if (eventLog != null) {
+                Log.i("$TAG Adding sent message with ID [${message.messageId}] to events list")
+                addEvents(arrayOf(eventLog))
+            } else {
+                Log.e("$TAG Failed to get event log for sent message with ID [${message.messageId}]")
+            }
+        }
+    }
+
     @WorkerThread
     private fun configureChatRoom() {
         if (!isChatRoomInitialized()) return
@@ -718,7 +719,7 @@ class ConversationViewModel
 
     @WorkerThread
     private fun addEvents(eventLogs: Array<EventLog>) {
-        Log.i("$TAG Adding [${eventLogs.size}] events")
+        Log.i("$TAG Adding [${eventLogs.size}] event(s)")
         // Need to use a new list, otherwise ConversationFragment's dataObserver isn't triggered...
         val list = arrayListOf<EventLogModel>()
         list.addAll(eventsList)
@@ -1029,11 +1030,13 @@ class ConversationViewModel
             canSearchDown.postValue(true)
             canSearchUp.postValue(true)
 
+            // Clear highlight from previous match
+            latestMatchModel?.highlightText("")
+
             Log.i(
                 "$TAG Found result [${match.chatMessage?.messageId}] while looking up for message with text [$textToSearch] in direction [$direction] starting from message [${latestMatch?.chatMessage?.messageId}]"
             )
             latestMatch = match
-
             val found = eventsList.find {
                 it.eventLog == match
             }
@@ -1042,7 +1045,8 @@ class ConversationViewModel
                 loadMessagesUpTo(match)
             } else {
                 Log.i("$TAG Found result is already in history, no need to load more history")
-                (found.model as? MessageModel)?.highlightText(textToSearch)
+                latestMatchModel = (found.model as? MessageModel)
+                latestMatchModel?.highlightText(textToSearch)
                 val index = eventsList.indexOf(found)
                 itemToScrollTo.postValue(index)
                 searchInProgress.postValue(false)

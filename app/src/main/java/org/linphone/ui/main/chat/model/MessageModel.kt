@@ -24,6 +24,7 @@ import android.os.CountDownTimer
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
@@ -646,6 +647,7 @@ class MessageModel
         if (textContent != null) {
             computeTextContent(textContent, highlight)
         }
+        isSelected.postValue(highlight.isNotEmpty())
     }
 
     @WorkerThread
@@ -673,21 +675,6 @@ class MessageModel
         if (emojiOnly) {
             text.postValue(spannableBuilder)
             return
-        }
-
-        // Check for search
-        if (highlight.isNotEmpty()) {
-            val indexStart = rawTextContent.indexOf(highlight, 0, ignoreCase = true)
-            if (indexStart >= 0) {
-                isTextHighlighted = true
-                val indexEnd = indexStart + highlight.length
-                spannableBuilder.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    indexStart,
-                    indexEnd,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
         }
 
         // Check for mentions
@@ -744,6 +731,13 @@ class MessageModel
                     start + offset + displayName.length + 1,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
+                // Change color
+                spannableBuilder.setSpan(
+                    ForegroundColorSpan(AppUtils.getColorInt(R.color.orange_main_500)),
+                    start + offset,
+                    start + offset + displayName.length + 1,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
                 offset += displayName.length - source.length
             }
         }
@@ -779,6 +773,21 @@ class MessageModel
                 )
                 .build(spannableBuilder)
         )
+
+        // Check for search
+        if (highlight.isNotEmpty()) {
+            val indexStart = rawTextContent.indexOf(highlight, 0, ignoreCase = true)
+            if (indexStart >= 0) {
+                isTextHighlighted = true
+                val indexEnd = indexStart + highlight.length
+                spannableBuilder.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    indexStart,
+                    indexEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+        }
     }
 
     @WorkerThread

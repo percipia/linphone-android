@@ -277,7 +277,6 @@
                     android:text="@string/assistant_account_login"
                     app:layout_constraintWidth_max="@dimen/button_max_width"
                     app:layout_constraintTop_toBottomOf="@id/transport"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="@id/title" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -285,13 +284,14 @@
                     style="@style/section_header_style"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="35dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="25dp"
+                    android:background="@drawable/squircle_transparent_button_background"
                     android:drawableEnd="@{viewModel.expandAdvancedSettings ? @drawable/caret_up : @drawable/caret_down, default=@drawable/caret_up}"
                     android:drawablePadding="10dp"
                     android:drawableTint="?attr/color_main2_600"
                     android:onClick="@{() -> viewModel.toggleAdvancedSettingsExpand()}"
-                    android:padding="5dp"
+                    android:padding="10dp"
                     android:text="@string/settings_advanced_title"
                     app:layout_constraintStart_toEndOf="@id/title"
                     app:layout_constraintTop_toBottomOf="@id/title"

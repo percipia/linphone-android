@@ -96,6 +96,8 @@ import org.linphone.utils.showKeyboard
 import androidx.core.net.toUri
 import org.linphone.ui.main.chat.adapter.ConversationParticipantsAdapter
 import org.linphone.ui.main.chat.model.MessageDeleteDialogModel
+import org.linphone.utils.ShortcutUtils
+import kotlin.collections.arrayListOf
 
 @UiThread
 open class ConversationFragment : SlidingPaneChildFragment() {
@@ -528,6 +530,7 @@ open class ConversationFragment : SlidingPaneChildFragment() {
                     }
                 } else {
                     sharedViewModel.displayedChatRoom = viewModel.chatRoom
+                    ShortcutUtils.reportChatRoomShortcutHasBeenUsed(requireContext(), viewModel.conversationId)
 
                     sendMessageViewModel.configureChatRoom(viewModel.chatRoom)
                     adapter.setIsConversationSecured(viewModel.isEndToEndEncrypted.value == true)
@@ -740,6 +743,12 @@ open class ConversationFragment : SlidingPaneChildFragment() {
             false
         }
 
+        sendMessageViewModel.messageSentEvent.observe(viewLifecycleOwner) {
+            it.consume { message ->
+                viewModel.addSentMessageToEventsList(message)
+            }
+        }
+
         sendMessageViewModel.emojiToAddEvent.observe(viewLifecycleOwner) {
             it.consume { emoji ->
                 binding.sendArea.messageToSend.addCharacterAtPosition(emoji)
@@ -784,6 +793,9 @@ open class ConversationFragment : SlidingPaneChildFragment() {
         viewModel.focusSearchBarEvent.observe(viewLifecycleOwner) {
             it.consume { show ->
                 if (show) {
+                    val bottomSheetBehavior = BottomSheetBehavior.from(binding.messageBottomSheet.root)
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
                     // To automatically open keyboard
                     binding.search.showKeyboard()
                 } else {
@@ -1340,6 +1352,7 @@ open class ConversationFragment : SlidingPaneChildFragment() {
         showDelivery: Boolean = false,
         showReactions: Boolean = false
     ) {
+        viewModel.closeSearchBar()
         binding.sendArea.messageToSend.hideKeyboard()
         backPressedCallback.isEnabled = true
 
@@ -1416,49 +1429,59 @@ open class ConversationFragment : SlidingPaneChildFragment() {
     private fun displayDeliveryStatuses(model: MessageDeliveryModel) {
         val tabs = binding.messageBottomSheet.tabs
         tabs.removeAllTabs()
-        tabs.addTab(
-            tabs.newTab().setText(model.readLabel.value).setId(
-                ChatMessage.State.Displayed.toInt()
-            )
+
+        val displayedTab = tabs.newTab().setText(model.readLabel.value).setId(
+            ChatMessage.State.Displayed.toInt()
         )
-        tabs.addTab(
-            tabs.newTab().setText(
-                model.receivedLabel.value
-            ).setId(
-                ChatMessage.State.DeliveredToUser.toInt()
-            )
+        val deliveredTab = tabs.newTab().setText(model.receivedLabel.value).setId(
+            ChatMessage.State.DeliveredToUser.toInt()
         )
-        tabs.addTab(
-            tabs.newTab().setText(model.sentLabel.value).setId(
-                ChatMessage.State.Delivered.toInt()
-            )
+        val sentTab = tabs.newTab().setText(model.sentLabel.value).setId(
+            ChatMessage.State.Delivered.toInt()
         )
-        tabs.addTab(
-            tabs.newTab().setText(
-                model.errorLabel.value
-            ).setId(
-                ChatMessage.State.NotDelivered.toInt()
-            )
+        val errorTab = tabs.newTab().setText(model.errorLabel.value).setId(
+            ChatMessage.State.NotDelivered.toInt()
         )
+        // Tabs must be added first otherwise select() will do nothing
+        tabs.addTab(displayedTab)
+        tabs.addTab(deliveredTab)
+        tabs.addTab(sentTab)
+        tabs.addTab(errorTab)
+
+        if (model.displayedModels.isNotEmpty()) {
+            bottomSheetAdapter.submitList(model.displayedModels)
+            displayedTab.select()
+        } else {
+            if (model.deliveredModels.isNotEmpty()) {
+                bottomSheetAdapter.submitList(model.deliveredModels)
+                deliveredTab.select()
+            } else {
+                if (model.sentModels.isNotEmpty()) {
+                    bottomSheetAdapter.submitList(model.sentModels)
+                    sentTab.select()
+                } else {
+                    if (model.errorModels.isNotEmpty()) {
+                        bottomSheetAdapter.submitList(model.errorModels)
+                        errorTab.select()
+                    } else {
+                        // TODO FIXME: remove all tabs and show error message?
+                    }
+                }
+            }
+        }
 
         tabs.setOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val state = tab?.id ?: ChatMessage.State.Displayed.toInt()
                 bottomSheetAdapter.submitList(
-                    model.computeListForState(ChatMessage.State.fromInt(state))
+                    model.getListForState(ChatMessage.State.fromInt(state))
                 )
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) { }
 
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
+            override fun onTabReselected(tab: TabLayout.Tab?) { }
         })
-
-        val initialList = model.displayedModels
-        bottomSheetAdapter.submitList(initialList)
-        Log.i("$TAG Submitted [${initialList.size}] items for default delivery status list")
     }
 
     @UiThread

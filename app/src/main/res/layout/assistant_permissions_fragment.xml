@@ -52,7 +52,7 @@
                 app:tint="?attr/color_main2_500"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
-    
+
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/assistant_page_title_style"
                 android:id="@+id/title"

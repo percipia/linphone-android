@@ -63,6 +63,7 @@ import org.linphone.utils.ImageUtils
 import org.linphone.utils.LinphoneUtils
 import org.linphone.utils.PhoneNumberUtils
 import org.linphone.utils.ShortcutUtils
+import java.io.FileNotFoundException
 
 class ContactsManager
     @UiThread
@@ -95,8 +96,6 @@ class ContactsManager
     private val magicSearchListener = object : MagicSearchListenerStub() {
         @WorkerThread
         override fun onSearchResultsReceived(magicSearch: MagicSearch) {
-            reloadRemoteContactsJob?.cancel()
-
             var queriedSipUri = ""
             for ((key, value) in magicSearchMap.entries) {
                 if (value == magicSearch) {
@@ -120,6 +119,7 @@ class ContactsManager
                         Log.w("$TAG Received friend [${friend.name}] with SIP URI [$address] doesn't match queried SIP URI [$queriedSipUri]")
                     } else {
                         found = true
+                        reloadRemoteContactsJob?.cancel()
 
                         // Store friend in app's cache to be re-used in call history, conversations, etc...
                         val temporaryFriendList = getRemoteContactDirectoriesCacheFriendList()
@@ -741,6 +741,8 @@ fun Friend.getNativeContactPictureUri(): Uri? {
                     fd.close()
                     return pictureUri
                 }
+            } catch (fnfe: FileNotFoundException) {
+                Log.w("[Contacts Manager] Can't open [$pictureUri] for contact [$name]: $fnfe")
             } catch (e: Exception) {
                 Log.e("[Contacts Manager] Can't open [$pictureUri] for contact [$name]: $e")
             }

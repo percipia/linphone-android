@@ -1,9 +1,10 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import com.google.gms.googleservices.GoogleServicesPlugin
-import java.io.ByteArrayOutputStream
+import java.io.BufferedReader
 import java.io.FileInputStream
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -16,13 +17,6 @@ plugins {
 
 val packageName = "com.percipia.frequencyconnect"
 val useDifferentPackageNameForDebugBuild = false
-
-// Debug build versions are prefixed with 1 to differentiate them from release builds
-val debugVersionCode = 100008 // 1.00.008
-// Production build versions are prefixed with 2 as per above
-val releaseVersionCode = 200008 // 2.00.008
-// Version name is the same for both debug and release builds
-val appVersionName = "2.0.8"
 
 val sdkPath = providers.gradleProperty("LinphoneSdkBuildDir").get()
 val googleServices = File(projectDir.absolutePath + "/google-services.json")
@@ -38,58 +32,57 @@ if (firebaseCloudMessagingAvailable) {
     println("google-services.json not found, disabling CloudMessaging feature")
 }
 
-val taggedRelease: String? = System.getenv("CI_COMMIT_TAG")
-var gitBranch = ByteArrayOutputStream()
 var gitVersion = "6.1.0-alpha"
+var gitBranch = ""
+try {
+    val gitDescribe = ProcessBuilder()
+        .command("git", "describe", "--abbrev=0")
+        .directory(project.rootDir)
+        .start()
+        .inputStream.bufferedReader().use(BufferedReader::readText)
+        .trim()
+    println("Git describe: $gitDescribe")
 
-task("getGitVersion") {
-    val gitVersionStream = ByteArrayOutputStream()
-    val gitCommitsCount = ByteArrayOutputStream()
-    val gitCommitHash = ByteArrayOutputStream()
+    val gitCommitsCount = ProcessBuilder()
+        .command("git", "rev-list", "$gitDescribe..HEAD", "--count")
+        .directory(project.rootDir)
+        .start()
+        .inputStream.bufferedReader().use(BufferedReader::readText)
+        .trim()
+    println("Git commits count: $gitCommitsCount")
 
-    try {
-        exec {
-            commandLine("git", "describe", "--abbrev=0")
-            standardOutput = gitVersionStream
-        }
-        exec {
-            commandLine(
-                "git",
-                "rev-list",
-                gitVersionStream.toString().trim() + "..HEAD",
-                "--count",
-            )
-            standardOutput = gitCommitsCount
-        }
-        exec {
-            commandLine("git", "rev-parse", "--short", "HEAD")
-            standardOutput = gitCommitHash
-        }
-        exec {
-            commandLine("git", "name-rev", "--name-only", "HEAD")
-            standardOutput = gitBranch
-        }
+    val gitCommitHash = ProcessBuilder()
+        .command("git", "rev-parse", "--short", "HEAD")
+        .directory(project.rootDir)
+        .start()
+        .inputStream.bufferedReader().use(BufferedReader::readText)
+        .trim()
+    println("Git commit hash: $gitCommitHash")
 
-        gitVersion =
-            if (gitCommitsCount.toString().trim().toInt() == 0) {
-                gitVersionStream.toString().trim()
-            } else {
-                gitVersionStream.toString().trim() + "." +
-                    gitCommitsCount.toString()
-                        .trim() + "+" + gitCommitHash.toString().trim()
-            }
-        println("Git version: $gitVersion")
-    } catch (e: Exception) {
-        println("Git not found [$e], using $gitVersion")
-    }
-    project.version = gitVersion
+    gitBranch = ProcessBuilder()
+        .command("git", "name-rev", "--name-only", "HEAD")
+        .directory(project.rootDir)
+        .start()
+        .inputStream.bufferedReader().use(BufferedReader::readText)
+        .trim()
+    println("Git branch name: $gitBranch")
+
+    gitVersion =
+        if (gitCommitsCount.toInt() == 0) {
+            gitDescribe
+        } else {
+            "$gitDescribe.$gitCommitsCount+$gitCommitHash"
+        }
+} catch (e: Exception) {
+    println("Git not found [$e], using $gitVersion")
 }
-project.tasks.preBuild.dependsOn("getGitVersion")
+println("Computed git version: $gitVersion")
 
 configurations {
     implementation { isCanBeResolved = true }
 }
-task("linphoneSdkSource") {
+
+tasks.register("linphoneSdkSource") {
     doLast {
         configurations.implementation.get().incoming.resolutionResult.allComponents.forEach {
             if (it.id.displayName.contains("linphone-sdk-android")) {
@@ -108,14 +101,8 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = debugVersionCode
-        versionName = appVersionName + "-debug"
-
-        // Override versionCode and versionName for tagged releases
-        if (taggedRelease != null) {
-            versionCode = releaseVersionCode
-            versionName = appVersionName
-        }
+        versionCode = 201002 // 2.01.002
+        versionName = "2.1.0"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
 
@@ -127,11 +114,10 @@ android {
 
     applicationVariants.all {
         val variant = this
-        
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
-                output.outputFileName = "frequency-connect-android-${variant.buildType.name}-${project.version}.apk"
+                output.outputFileName = "linphone-android-${variant.buildType.name}-${project.version}.apk"
             }
     }
 
@@ -163,13 +149,16 @@ android {
             isDebuggable = true
             isJniDebuggable = true
 
+            val appVersion = gitVersion
+            val appBranch = gitBranch
+            println("Setting app version [$appVersion] app branch [$appBranch]")
+            resValue("string", "linphone_app_version", appVersion)
+            resValue("string", "linphone_app_branch", appBranch)
             if (useDifferentPackageNameForDebugBuild) {
                 resValue("string", "file_provider", "$packageName.debug.fileprovider")
             } else {
                 resValue("string", "file_provider", "$packageName.fileprovider")
             }
-            resValue("string", "linphone_app_version", gitVersion.trim())
-            resValue("string", "linphone_app_branch", gitBranch.toString().trim())
             resValue("string", "linphone_openid_callback_scheme", packageName)
 
             if (crashlyticsAvailable) {
@@ -191,9 +180,12 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
 
+            val appVersion = gitVersion
+            val appBranch = gitBranch
+            println("Setting app version [$appVersion] app branch [$appBranch]")
+            resValue("string", "linphone_app_version", appVersion)
+            resValue("string", "linphone_app_branch", appBranch)
             resValue("string", "file_provider", "$packageName.fileprovider")
-            resValue("string", "linphone_app_version", gitVersion.trim())
-            resValue("string", "linphone_app_branch", gitBranch.toString().trim())
             resValue("string", "linphone_openid_callback_scheme", packageName)
 
             if (crashlyticsAvailable) {
@@ -208,12 +200,21 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    // Ensure Kotlin and Java compile to the same JVM target.
+    // Use Kotlin JVM toolchain to align Kotlin compiler with Java 21.
+    kotlin {
+        jvmToolchain(21)
+    }
+
+    // Set JVM target using the modern compilerOptions DSL
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
     }
 
     buildFeatures {

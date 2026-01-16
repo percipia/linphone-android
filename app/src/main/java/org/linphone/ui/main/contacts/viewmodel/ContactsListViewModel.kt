@@ -233,7 +233,7 @@ class ContactsListViewModel
     fun toggleFavouritesVisibility() {
         val show = showFavourites.value == false
         showFavourites.value = show
-        
+
         coreContext.postOnCoreThread {
             corePreferences.showFavoriteContacts = show
         }

@@ -13,6 +13,12 @@
             name="helpClickListener"
             type="View.OnClickListener" />
         <variable
+            name="forgottenPasswordClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="registerClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="thirdPartySipAccountLoginClickListener"
             type="View.OnClickListener" />
         <variable
@@ -75,51 +81,39 @@
                     android:onClick="@{helpClickListener}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:padding="10dp"
                     android:text="@string/help_title"
                     android:textSize="14sp"
                     android:textColor="?attr/color_main2_500"
                     android:drawableStart="@drawable/question"
                     android:drawablePadding="5dp"
+                    android:background="@drawable/squircle_transparent_button_background"
                     app:drawableTint="?attr/color_main2_500"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"/>
 
-                <ImageView
-                    android:id="@+id/eye"
-                    android:onClick="@{() -> viewModel.toggleShowPassword()}"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="0dp"
-                    android:padding="4dp"
-                    android:layout_marginEnd="20dp"
-                    android:contentDescription="@string/content_description_toggle_password_visibility"
-                    android:src="@{viewModel.showPassword ? @drawable/eye_slash : @drawable/eye, default=@drawable/eye}"
-                    app:tint="?attr/color_main2_500"
-                    app:layout_constraintEnd_toEndOf="@id/password"
-                    app:layout_constraintTop_toTopOf="@id/password"
-                    app:layout_constraintBottom_toBottomOf="@id/password" />
-
                 <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/secondary_button_label_style"
                     android:id="@+id/scan_qr_code"
-                    android:onClick="@{qrCodeClickListener}"
+                    style="@style/secondary_button_label_style"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginTop="16dp"
+                    android:drawableStart="@drawable/qr_code"
+                    android:drawablePadding="8dp"
+                    android:onClick="@{qrCodeClickListener}"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:text="@string/assistant_scan_qr_code"
-                    android:drawableStart="@drawable/qr_code"
-                    android:drawablePadding="8dp"
                     android:visibility="@{viewModel.hideScanQrCode ? View.GONE : View.VISIBLE}"
                     app:drawableTint="@color/secondary_button_label_color"
-                    app:layout_constraintStart_toStartOf="@id/title"
+                    app:layout_constraintBottom_toTopOf="@id/third_party_sip_account"
                     app:layout_constraintEnd_toEndOf="@id/title"
-                    app:layout_constraintTop_toBottomOf="@id/title"
-                    app:layout_constraintBottom_toTopOf="@id/third_party_sip_account" />
+                    app:layout_constraintStart_toStartOf="@id/title"
+                    app:layout_constraintTop_toBottomOf="@id/title"/>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/secondary_button_label_style"
@@ -137,6 +131,7 @@
                     app:layout_constraintStart_toStartOf="@id/title"
                     app:layout_constraintEnd_toEndOf="@id/title"
                     app:layout_constraintTop_toBottomOf="@id/scan_qr_code"/>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </ScrollView>
