@@ -172,6 +172,8 @@ android {
                     nativeSymbolUploadEnabled = true
                     unstrippedNativeLibsDir = path
                 }
+            } else {
+                resValue("string", "com.crashlytics.android.build_id", "none")
             }
             buildConfigField("Boolean", "CRASHLYTICS_ENABLED", crashlyticsAvailable.toString())
         }
@@ -199,6 +201,8 @@ android {
                     nativeSymbolUploadEnabled = true
                     unstrippedNativeLibsDir = path
                 }
+            } else {
+                resValue("string", "com.crashlytics.android.build_id", "none")
             }
             buildConfigField("Boolean", "CRASHLYTICS_ENABLED", crashlyticsAvailable.toString())
         }
