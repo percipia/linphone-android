@@ -1,6 +1,6 @@
-FROM debian:bullseye
+FROM debian:trixie
 
-MAINTAINER Maj Kravos <mkravos@percipia.com>
+MAINTAINER Sylvain BERFINI <sylvain.berfini@belledonne-communications.com>
 
 # Configure locale
 RUN apt-get update && \
@@ -17,10 +17,10 @@ ENV ANDROID_HOME /opt/android-sdk-linux
 
 # Install common general tools
 RUN apt-get update && \
-    apt-get install -y curl nano sudo unzip vim wget rsync ssh git openjdk-17-jdk-headless && \
+    apt-get install -y curl nano sudo unzip vim wget rsync ssh git openjdk-21-jdk-headless && \
     apt-get clean
 
-# Get latest Android command line tools, otherwise won't work with JDK 17
+# Get latest Android command line tools, otherwise won't work with JDK 21
 RUN mkdir -p $ANDROID_HOME/cmdline-tools/latest
 RUN wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
     unzip commandlinetools-linux-9477386_latest.zip && \

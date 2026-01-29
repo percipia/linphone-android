@@ -1,10 +1,10 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsPlugin
 import com.google.gms.googleservices.GoogleServicesPlugin
 import java.io.BufferedReader
 import java.io.FileInputStream
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -26,10 +26,16 @@ val firebaseCloudMessagingAvailable = googleServices.exists()
 val crashlyticsAvailable = googleServices.exists() && linphoneLibs.exists() && linphoneDebugLibs.exists()
 
 if (firebaseCloudMessagingAvailable) {
-    println("google-services.json found, enabling CloudMessaging feature")
+    println("google-services.json found, enabling Firebase CloudMessaging feature")
     apply<GoogleServicesPlugin>()
 } else {
-    println("google-services.json not found, disabling CloudMessaging feature")
+    println("google-services.json not found, disabling Firebase CloudMessaging feature")
+}
+if (crashlyticsAvailable) {
+    println("google-services.json found and Linphone SDK libs-debug folder found, enabling Crashlytics feature")
+    apply<CrashlyticsPlugin>()
+} else {
+    println("Crashlytics has been disabled because either google-services.json file wasn't found or local Linphone SDK build folder isn't configured")
 }
 
 var gitVersion = "6.1.0-alpha"
@@ -101,7 +107,7 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 201002 // 2.01.002
+        versionCode = 201003 // 2.01.003
         versionName = "2.1.0"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
@@ -117,7 +123,7 @@ android {
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
-                output.outputFileName = "frequency-connect-android-${variant.buildType.name}-${project.version}.apk"
+                output.outputFileName = "linphone-android-${variant.buildType.name}-${project.version}.apk"
             }
     }
 
@@ -151,7 +157,7 @@ android {
 
             val appVersion = gitVersion
             val appBranch = gitBranch
-            println("Setting app version [$appVersion] app branch [$appBranch]")
+            println("Debug flavor app version is [$appVersion], app branch is [$appBranch]")
             resValue("string", "linphone_app_version", appVersion)
             resValue("string", "linphone_app_branch", appBranch)
             if (useDifferentPackageNameForDebugBuild) {
@@ -182,7 +188,7 @@ android {
 
             val appVersion = gitVersion
             val appBranch = gitBranch
-            println("Setting app version [$appVersion] app branch [$appBranch]")
+            println("Release flavor app version is [$appVersion], app branch is [$appBranch]")
             resValue("string", "linphone_app_version", appVersion)
             resValue("string", "linphone_app_branch", appBranch)
             resValue("string", "file_provider", "$packageName.fileprovider")
@@ -200,26 +206,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    // Ensure Kotlin and Java compile to the same JVM target.
-    // Use Kotlin JVM toolchain to align Kotlin compiler with Java 17.
-    kotlin {
-        jvmToolchain(17)
-    }
-
-    // Set JVM target using the modern compilerOptions DSL
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
         dataBinding = true
         buildConfig = true
+        resValues = true
     }
 
     lint {
