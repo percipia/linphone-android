@@ -12,7 +12,6 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.navigation)
-    alias(libs.plugins.crashlytics)
 }
 
 val packageName = "com.percipia.frequencyconnect"
@@ -107,7 +106,7 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 201003 // 2.01.003
+        versionCode = 201004 // 2.01.004
         versionName = "2.1.0"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
@@ -173,6 +172,8 @@ android {
                     nativeSymbolUploadEnabled = true
                     unstrippedNativeLibsDir = path
                 }
+            } else {
+                resValue("string", "com.crashlytics.android.build_id", "none")
             }
             buildConfigField("Boolean", "CRASHLYTICS_ENABLED", crashlyticsAvailable.toString())
         }
@@ -200,6 +201,8 @@ android {
                     nativeSymbolUploadEnabled = true
                     unstrippedNativeLibsDir = path
                 }
+            } else {
+                resValue("string", "com.crashlytics.android.build_id", "none")
             }
             buildConfigField("Boolean", "CRASHLYTICS_ENABLED", crashlyticsAvailable.toString())
         }
@@ -262,6 +265,8 @@ dependencies {
     implementation(libs.photoview)
     // https://github.com/openid/AppAuth-Android/blob/master/LICENSE Apache v2.0
     implementation(libs.openid.appauth)
+    // https://github.com/square/okhttp/blob/master/LICENSE.txt Apache v2.0
+    implementation(libs.okhttp)
 
     implementation(libs.linphone)
 }

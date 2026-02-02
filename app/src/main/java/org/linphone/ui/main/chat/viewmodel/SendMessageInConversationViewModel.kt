@@ -56,6 +56,7 @@ import org.linphone.utils.AudioUtils
 import org.linphone.utils.Event
 import org.linphone.utils.FileUtils
 import org.linphone.utils.LinphoneUtils
+import org.linphone.utils.PercipiaNexus
 
 class SendMessageInConversationViewModel
     @UiThread
@@ -299,6 +300,15 @@ class SendMessageInConversationViewModel
     fun sendMessage() {
         coreContext.postOnCoreThread {
             val isBasicChatRoom: Boolean = chatRoom.hasCapability(ChatRoom.Capabilities.Basic.toInt())
+
+            // Check Nexus guest restrictions
+            val extension = coreContext.core.defaultAccount?.params?.identityAddress?.username
+            val destinationExtension = chatRoom.peerAddress.username
+            val canMessage = PercipiaNexus.outgoingChatAllowed(extension, destinationExtension, !isBasicChatRoom)
+            if (!canMessage) {
+                showRedToast(R.string.conversation_guest_extension_messaging_restricted_toast, R.drawable.warning_circle)
+                return@postOnCoreThread
+            }
 
             val messageToReplyTo = chatMessageToReplyTo
             val messageToEdit = chatMessageToEdit

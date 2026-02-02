@@ -36,6 +36,7 @@ import org.linphone.ui.GenericViewModel
 import org.linphone.ui.main.model.AccountModel
 import org.linphone.utils.Event
 import org.linphone.utils.LinphoneUtils
+import org.linphone.utils.PercipiaNexus
 
 open class AbstractMainViewModel
     @UiThread
@@ -329,7 +330,20 @@ open class AbstractMainViewModel
 
     @WorkerThread
     fun updateAvailableMenus() {
-        hideConversations.postValue(corePreferences.disableChat)
+        var disableChat = false
+
+        // Check Nexus guest restrictions
+        val extension = coreContext.core.defaultAccount?.params?.identityAddress?.username
+        if (extension != null && !PercipiaNexus.chatPageEnabledForExtension(extension)) {
+            disableChat = true
+        }
+
+        // Apply user preference if not already disabled by Nexus
+        if (!disableChat) {
+            disableChat = corePreferences.disableChat
+        }
+
+        hideConversations.postValue(disableChat)
 
         val conferencingAvailable = LinphoneUtils.isRemoteConferencingAvailable(
             coreContext.core
