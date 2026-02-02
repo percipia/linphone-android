@@ -564,7 +564,7 @@ class CoreContext
     private var logcatEnabled: Boolean = corePreferences.printLogsInLogcat
 
     private var crashlyticsEnabled: Boolean = corePreferences.sendLogsToCrashlytics
-    private var crashlyticsAvailable = true
+    private var crashlyticsAvailable = BuildConfig.CRASHLYTICS_ENABLED
 
     private val loggingServiceListener = object : LoggingServiceListenerStub() {
         @WorkerThread
@@ -583,7 +583,7 @@ class CoreContext
                     else -> android.util.Log.d(domain, message)
                 }
             }
-            if (crashlyticsEnabled) {
+            if (crashlyticsAvailable && crashlyticsEnabled) {
                 FirebaseCrashlytics.getInstance().log("[$domain] [${level.name}] $message")
             }
         }
