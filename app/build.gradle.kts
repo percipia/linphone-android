@@ -106,7 +106,7 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 201003 // 2.01.003
+        versionCode = 201004 // 2.01.004
         versionName = "2.1.0"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
@@ -265,6 +265,8 @@ dependencies {
     implementation(libs.photoview)
     // https://github.com/openid/AppAuth-Android/blob/master/LICENSE Apache v2.0
     implementation(libs.openid.appauth)
+    // https://github.com/square/okhttp/blob/master/LICENSE.txt Apache v2.0
+    implementation(libs.okhttp)
 
     implementation(libs.linphone)
 }

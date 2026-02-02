@@ -56,6 +56,7 @@ import org.linphone.utils.AudioUtils
 import org.linphone.utils.Event
 import org.linphone.utils.FileUtils
 import org.linphone.utils.LinphoneUtils
+import org.linphone.utils.PercipiaNexus
 
 class CoreContext
     @UiThread
@@ -879,6 +880,15 @@ class CoreContext
         forceZRTP: Boolean = false,
         localAddress: Address? = null
     ) {
+        // Check Nexus guest restrictions
+        val fromExtension = localAddress?.username ?: core.defaultAccount?.params?.identityAddress?.username
+        val toExtension = address.username
+        val canCall = PercipiaNexus.outgoingCallAllowed(fromExtension, toExtension)
+        if (!canCall) {
+            showRedToastEvent.postValue(Event(Pair(org.linphone.R.string.conversation_guest_extension_calling_restricted_toast, org.linphone.R.drawable.warning_circle)))
+            return
+        }
+
         val params = core.createCallParams(null)
         params?.isVideoEnabled = false
         startCall(address, params, forceZRTP, localAddress)
@@ -890,6 +900,15 @@ class CoreContext
         forceZRTP: Boolean = false,
         localAddress: Address? = null
     ) {
+        // Check Nexus guest restrictions
+        val fromExtension = localAddress?.username ?: core.defaultAccount?.params?.identityAddress?.username
+        val toExtension = address.username
+        val canCall = PercipiaNexus.outgoingCallAllowed(fromExtension, toExtension)
+        if (!canCall) {
+            showRedToastEvent.postValue(Event(Pair(org.linphone.R.string.conversation_guest_extension_calling_restricted_toast, org.linphone.R.drawable.warning_circle)))
+            return
+        }
+
         val params = core.createCallParams(null)
         params?.isVideoEnabled = true
         params?.videoDirection = MediaDirection.SendRecv
