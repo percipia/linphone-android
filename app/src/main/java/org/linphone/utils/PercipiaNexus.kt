@@ -1,3 +1,10 @@
+/**
+ * Utility class for integrating with the Percipia Nexus hospitality platform.
+ * Handles HTTP communication with the Nexus endpoint to fetch and cache guest extension parameters,
+ * including restrictions for guest-to-guest calling, guest-to-admin messaging, and conversation access.
+ *
+ * @author Maj Kravos <https://www.majkravos.com>
+ */
 package org.linphone.utils
 
 import androidx.annotation.WorkerThread
