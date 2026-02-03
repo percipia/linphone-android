@@ -24,8 +24,6 @@ import javax.net.ssl.HostnameVerifier
 
 class PercipiaNexus {
     companion object {
-        private const val TAG = "[Percipia Nexus]"
-
         data class ConnectParams(
             val isGuest: Boolean,
             val isGuestToAdminMessagingEnabled: Boolean,
@@ -36,6 +34,15 @@ class PercipiaNexus {
             val params: ConnectParams,
             val timestamp: Long
         )
+
+        private const val TAG = "[Percipia Nexus]"
+
+        // Nexus server
+        private const val ENDPOINT = "getConnectParams"
+        private const val PORT = "8443"
+        private const val CACHE_EXPIRY_MS = 60 * 1000 // 1 minute to account for Nexus rate limiting
+
+        private val paramsCache = mutableMapOf<String, CachedConnectParams>()
 
         // WARNING: Only enable for lab testing with self-signed certificates, do not use in prod
         private const val SKIP_SSL_VERIFICATION = true
@@ -59,13 +66,6 @@ class PercipiaNexus {
                 }
             }
             .build()
-
-        // Nexus server
-        private const val ENDPOINT = "getConnectParams"
-        private const val PORT = "8443"
-        private const val CACHE_EXPIRY_MS = 60 * 1000 // 1 minute to account for Nexus rate limiting
-
-        private val paramsCache = mutableMapOf<String, CachedConnectParams>()
 
         @WorkerThread
         private fun getPbxAddress(account: Account): String? {
