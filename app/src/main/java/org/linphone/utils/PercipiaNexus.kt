@@ -24,25 +24,11 @@ import javax.net.ssl.HostnameVerifier
 
 class PercipiaNexus {
     companion object {
-        data class ConnectParams(
-            val isGuest: Boolean,
-            val isGuestToAdminMessagingEnabled: Boolean,
-            val isGuestToGuestCallingEnabled: Boolean
-        )
-
-        data class CachedConnectParams(
-            val params: ConnectParams,
-            val timestamp: Long
-        )
-
         private const val TAG = "[Percipia Nexus]"
 
         // Nexus server
         private const val ENDPOINT = "getConnectParams"
         private const val PORT = "8443"
-        private const val CACHE_EXPIRY_MS = 60 * 1000 // 1 minute to account for Nexus rate limiting
-
-        private val paramsCache = mutableMapOf<String, CachedConnectParams>()
 
         // WARNING: Only enable for lab testing with self-signed certificates, do not use in prod
         private const val SKIP_SSL_VERIFICATION = true
@@ -66,6 +52,22 @@ class PercipiaNexus {
                 }
             }
             .build()
+
+        private val paramsCache = mutableMapOf<String, CachedConnectParams>()
+        private const val CACHE_EXPIRY_MS = 60 * 1000 // 1 minute to account for Nexus rate limiting
+
+        // Data class to hold Frequency Connect config parameters fetched from Nexus
+        data class ConnectParams(
+            val isGuest: Boolean,
+            val isGuestToAdminMessagingEnabled: Boolean,
+            val isGuestToGuestCallingEnabled: Boolean
+        )
+
+        // Data class to hold cached connect params along with timestamp
+        data class CachedConnectParams(
+            val params: ConnectParams,
+            val timestamp: Long
+        )
 
         @WorkerThread
         private fun getPbxAddress(account: Account): String? {
@@ -94,10 +96,10 @@ class PercipiaNexus {
         }
 
         @WorkerThread
-        private fun getConnectParams(account: Account): JSONObject? {
+        private fun getConnectParams(account: Account, targetExtension: String? = null): JSONObject? {
             val pbxAddress = getPbxAddress(account) ?: return null
             val domain = getPbxDomain(account) ?: return null
-            val extension = getExtensionNumber(account) ?: return null
+            val extension = targetExtension ?: getExtensionNumber(account) ?: return null
             
             val url = "https://$pbxAddress:$PORT/$ENDPOINT"
             
@@ -141,7 +143,6 @@ class PercipiaNexus {
                     return account
                 }
             }
-            Log.e(TAG, "No account found for extension [$extension]")
             return null
         }
 
@@ -163,8 +164,25 @@ class PercipiaNexus {
                 return cached.params
             }
 
-            val account = getAccountForExtension(extension) ?: return null
-            val responseBody = getConnectParams(account) ?: return null
+            // Try to get account for this extension
+            var account = getAccountForExtension(extension)
+            var responseBody = if (account != null) {
+                getConnectParams(account)
+            } else {
+                // No local account found, try to fetch using default account's PBX
+                Log.d(TAG, "No local account found for extension [$extension], attempting to fetch from PBX using default account")
+                val defaultAccount = coreContext.core.defaultAccount
+                if (defaultAccount != null) {
+                    getConnectParams(defaultAccount, targetExtension = extension)
+                } else {
+                    Log.e(TAG, "No account available to fetch params for extension [$extension]")
+                    null
+                }
+            }
+
+            if (responseBody == null) {
+                return null
+            }
 
             val params = ConnectParams(
                 isGuest = responseBody.getBoolean("is_guest_extension"),
@@ -190,24 +208,28 @@ class PercipiaNexus {
 
         @WorkerThread
         fun outgoingChatAllowed(fromExtension: String?, toExtension: String?, isGroupChat: Boolean): Boolean {
+            Log.i(TAG, "outgoingChatAllowed - fromExtension: $fromExtension, toExtension: $toExtension, isGroupChat: $isGroupChat")
+            
             val fromExtensionParams = getConnectParamsForExtension(fromExtension)
             val toExtensionParams = getConnectParamsForExtension(toExtension)
 
+            Log.i(TAG, "fromExtensionParams - isGuest: ${fromExtensionParams?.isGuest}, toExtensionParams - isGuest: ${toExtensionParams?.isGuest}")
+
             if (fromExtensionParams != null && toExtensionParams != null) {
                 if (fromExtensionParams.isGuest && toExtensionParams.isGuest) {
-                    Log.w("$TAG Guest extension [$fromExtension] is not allowed to message extension [$toExtension] because it is another guest extension")
+                    Log.w(TAG, "Guest extension [$fromExtension] is not allowed to message extension [$toExtension] because it is another guest extension")
                     return false
                 } else if (fromExtensionParams.isGuest && isGroupChat) {
-                    Log.w("$TAG Guest extension [$fromExtension] is not allowed to create group chats")
+                    Log.w(TAG, "Guest extension [$fromExtension] is not allowed to create group chats")
                     return false
                 } else if (fromExtensionParams.isGuest && !fromExtensionParams.isGuestToAdminMessagingEnabled) {
-                    Log.w("$TAG Guest extension [$fromExtension] is not allowed to message admin extension [$toExtension] because guest-to-admin messaging is disabled")
+                    Log.w(TAG, "Guest extension [$fromExtension] is not allowed to message admin extension [$toExtension] because guest-to-admin messaging is disabled")
                     return false
                 } else {
                     return true
                 }
             } else {
-                Log.w("$TAG fromExtensionParams or toExtensionParams is null, allowing outgoing message by default")
+                Log.w(TAG, "fromExtensionParams or toExtensionParams is null, allowing outgoing message by default")
                 return true
             }
         }
@@ -219,13 +241,13 @@ class PercipiaNexus {
 
             if (fromExtensionParams != null && toExtensionParams != null) {
                 if (fromExtensionParams.isGuest && toExtensionParams.isGuest && !fromExtensionParams.isGuestToGuestCallingEnabled) {
-                    Log.w("$TAG Guest extension [$fromExtension] is not allowed to call extension [$toExtension] because guest-to-guest calling is disabled")
+                    Log.w(TAG, "Guest extension [$fromExtension] is not allowed to call extension [$toExtension] because guest-to-guest calling is disabled")
                     return false
                 } else {
                     return true
                 }
             } else {
-                Log.w("$TAG fromExtensionParams or toExtensionParams is null, allowing outgoing call by default")
+                Log.w(TAG, "fromExtensionParams or toExtensionParams is null, allowing outgoing call by default")
                 return true
             }
         }
