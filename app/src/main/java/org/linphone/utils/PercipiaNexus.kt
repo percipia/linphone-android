@@ -31,7 +31,7 @@ class PercipiaNexus {
         private const val PORT = "8443"
 
         // WARNING: Only enable for lab testing with self-signed certificates, do not use in prod
-        private const val SKIP_SSL_VERIFICATION = true
+        private const val SKIP_SSL_VERIFICATION = false
         private val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
             override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
 
