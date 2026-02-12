@@ -112,8 +112,14 @@ class PercipiaNexus {
                 .url(url)
                 .post(formBody)
                 .build()
-                
-            val response = client.newCall(request).execute()
+
+            val response: okhttp3.Response
+            try {
+                response = client.newCall(request).execute()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch connect params: ${e.message}")
+                return null
+            }
 
             if (!response.isSuccessful) {
                 Log.e(TAG, "Failed to fetch connect params: ${response.code}")
