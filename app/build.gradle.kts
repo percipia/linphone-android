@@ -37,7 +37,7 @@ if (crashlyticsAvailable) {
     println("Crashlytics has been disabled because either google-services.json file wasn't found or local Linphone SDK build folder isn't configured")
 }
 
-var gitVersion = "6.1.0-alpha"
+var gitVersion = "2.1.0-alpha"
 var gitBranch = ""
 try {
     val gitDescribe = ProcessBuilder()
@@ -106,7 +106,7 @@ android {
         applicationId = packageName
         minSdk = 28
         targetSdk = 36
-        versionCode = 201005 // 2.01.005
+        versionCode = 201006 // 2.01.006
         versionName = "2.1.0"
 
         manifestPlaceholders["appAuthRedirectScheme"] = packageName
@@ -122,7 +122,7 @@ android {
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
-                output.outputFileName = "frequency-connect-android-${variant.buildType.name}-${project.version}.apk"
+                output.outputFileName = "frequency-connect-android-${variant.buildType.name}-$gitVersion.apk"
             }
     }
 
@@ -172,8 +172,6 @@ android {
                     nativeSymbolUploadEnabled = true
                     unstrippedNativeLibsDir = path
                 }
-            } else {
-                resValue("string", "com.crashlytics.android.build_id", "none")
             }
             buildConfigField("Boolean", "CRASHLYTICS_ENABLED", crashlyticsAvailable.toString())
         }
@@ -201,8 +199,6 @@ android {
                     nativeSymbolUploadEnabled = true
                     unstrippedNativeLibsDir = path
                 }
-            } else {
-                resValue("string", "com.crashlytics.android.build_id", "none")
             }
             buildConfigField("Boolean", "CRASHLYTICS_ENABLED", crashlyticsAvailable.toString())
         }
@@ -252,7 +248,11 @@ dependencies {
 
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.google.firebase.messaging)
-    implementation(libs.google.firebase.crashlytics)
+    if (crashlyticsAvailable) {
+        implementation(libs.google.firebase.crashlytics)
+    } else {
+        compileOnly(libs.google.firebase.crashlytics)
+    }
 
     // https://github.com/coil-kt/coil/blob/main/LICENSE.txt Apache v2.0
     implementation(libs.coil)
