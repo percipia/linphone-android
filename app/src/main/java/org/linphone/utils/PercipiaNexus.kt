@@ -2,6 +2,7 @@
  * Utility class for integrating with the Percipia Nexus hospitality platform.
  * Handles HTTP communication with the Nexus endpoint to fetch and cache guest extension parameters,
  * including restrictions for guest-to-guest calling, guest-to-admin messaging, and conversation access.
+ * enabling/disabling PBX policy restrictions on guest-to-admin messaging, and conversation access.
  *
  * @author Maj Kravos <https://www.majkravos.com>
  */
@@ -17,6 +18,7 @@ import org.linphone.core.tools.Log
 import java.net.InetAddress
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -63,7 +65,6 @@ class PercipiaNexus {
         data class ConnectParams(
             val isGuest: Boolean,
             val isGuestToAdminMessagingEnabled: Boolean,
-            val isGuestToGuestCallingEnabled: Boolean
         )
 
         // Data class to hold cached connect params along with timestamp
@@ -195,8 +196,7 @@ class PercipiaNexus {
 
             val params = ConnectParams(
                 isGuest = responseBody.getBoolean("is_guest_extension"),
-                isGuestToAdminMessagingEnabled = responseBody.getBoolean("is_guest_to_admin_messaging_enabled"),
-                isGuestToGuestCallingEnabled = responseBody.getBoolean("is_guest_to_guest_calling_enabled")
+                isGuestToAdminMessagingEnabled = responseBody.getBoolean("is_guest_to_admin_messaging_enabled")
             )
 
             // Cache the result
@@ -239,24 +239,6 @@ class PercipiaNexus {
                 }
             } else {
                 Log.w(TAG, "fromExtensionParams or toExtensionParams is null, allowing outgoing message by default")
-                return true
-            }
-        }
-
-        @WorkerThread
-        fun outgoingCallAllowed(fromExtension: String?, toExtension: String?): Boolean {
-            val fromExtensionParams = getConnectParamsForExtension(fromExtension)
-            val toExtensionParams = getConnectParamsForExtension(toExtension)
-
-            if (fromExtensionParams != null && toExtensionParams != null) {
-                if (fromExtensionParams.isGuest && toExtensionParams.isGuest && !fromExtensionParams.isGuestToGuestCallingEnabled) {
-                    Log.w(TAG, "Guest extension [$fromExtension] is not allowed to call extension [$toExtension] because guest-to-guest calling is disabled")
-                    return false
-                } else {
-                    return true
-                }
-            } else {
-                Log.w(TAG, "fromExtensionParams or toExtensionParams is null, allowing outgoing call by default")
                 return true
             }
         }

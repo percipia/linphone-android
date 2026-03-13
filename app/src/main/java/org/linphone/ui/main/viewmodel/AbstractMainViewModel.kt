@@ -36,7 +36,6 @@ import org.linphone.ui.GenericViewModel
 import org.linphone.ui.main.model.AccountModel
 import org.linphone.utils.Event
 import org.linphone.utils.LinphoneUtils
-import org.linphone.utils.PercipiaNexus
 
 open class AbstractMainViewModel
     @UiThread
@@ -333,10 +332,11 @@ open class AbstractMainViewModel
         var disableChat = false
 
         // Check Nexus guest restrictions
-        val extension = coreContext.core.defaultAccount?.params?.identityAddress?.username
-        if (extension != null && !PercipiaNexus.chatPageEnabledForExtension(extension)) {
-            disableChat = true
-        }
+        // Currently commented out pending business decision. TODO: Re-evaluate the need for this check and whether it should be re-enabled.
+        // val extension = coreContext.core.defaultAccount?.params?.identityAddress?.username
+        // if (extension != null && !PercipiaNexus.chatPageEnabledForExtension(extension)) {
+        //     disableChat = true
+        // }
 
         // Apply user preference if not already disabled by Nexus
         if (!disableChat) {
