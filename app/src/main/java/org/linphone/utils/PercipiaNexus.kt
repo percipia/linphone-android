@@ -44,6 +44,9 @@ class PercipiaNexus {
         }
 
         private val client = OkHttpClient.Builder()
+            .connectTimeout(3, TimeUnit.SECONDS)
+            .writeTimeout(3, TimeUnit.SECONDS)
+            .readTimeout(3, TimeUnit.SECONDS)
             .apply {
                 if (SKIP_SSL_VERIFICATION) {
                     Log.w(TAG, "SSL certificate verification is DISABLED - only use for testing!")
