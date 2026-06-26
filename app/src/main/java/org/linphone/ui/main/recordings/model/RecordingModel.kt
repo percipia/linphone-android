@@ -78,12 +78,12 @@ class RecordingModel
                 Log.e("$TAG Failed to parse legacy timestamp [$parsedDate]")
             }
             timestamp = parsedTimestamp
-        } else {
+        } else if (fileName.length > LinphoneUtils.RECORDING_FILE_NAME_HEADER.length) {
             val withoutHeader = fileName.substring(LinphoneUtils.RECORDING_FILE_NAME_HEADER.length)
             val indexOfSeparator = withoutHeader.indexOf(
                 LinphoneUtils.RECORDING_FILE_NAME_URI_TIMESTAMP_SEPARATOR
             )
-            sipUri = withoutHeader.substring(0, indexOfSeparator)
+            sipUri = withoutHeader.take(indexOfSeparator)
             val sipAddress = Factory.instance().createAddress(sipUri)
             displayName = if (sipAddress != null) {
                 val contact = coreContext.contactsManager.findContactByAddress(sipAddress)
@@ -100,17 +100,26 @@ class RecordingModel
                 "$TAG Extract SIP URI [$sipUri] and timestamp [$parsedTimestamp] from file [$fileName]"
             )
             timestamp = parsedTimestamp.toLong()
+        } else {
+            sipUri = ""
+            displayName = fileName
+            timestamp = 0L
         }
 
-        month = TimestampUtils.month(timestamp, timestampInSecs = false)
-        val date = TimestampUtils.toString(
-            timestamp,
-            timestampInSecs = false,
-            onlyDate = true,
-            shortDate = false
-        )
-        val time = TimestampUtils.timeToString(timestamp, timestampInSecs = false)
-        dateTime = "$date - $time"
+        if (timestamp != 0L) {
+            month = TimestampUtils.month(timestamp, timestampInSecs = false)
+            val date = TimestampUtils.toString(
+                timestamp,
+                timestampInSecs = false,
+                onlyDate = true,
+                shortDate = false
+            )
+            val time = TimestampUtils.timeToString(timestamp, timestampInSecs = false)
+            dateTime = "$date - $time"
+        } else {
+            month = ""
+            dateTime = ""
+        }
 
         val audioPlayer = coreContext.core.createLocalPlayer(null, null, null)
         if (audioPlayer != null) {

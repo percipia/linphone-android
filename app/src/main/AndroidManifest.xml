@@ -42,6 +42,9 @@
     <!-- Needed for auto start at boot if keep alive service is enabled -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
+
     <application
         android:name=".LinphoneApplication"
         android:allowBackup="true"
@@ -61,6 +64,10 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc"/>
+
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
 
         <!--<meta-data
             android:name="androidx.car.app.minCarApiLevel"
@@ -125,13 +132,13 @@
         </activity>
 
         <activity
-            android:name=".ui.welcome.WelcomeActivity"
+            android:name=".ui.assistant.AssistantActivity"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTask"
             android:resizeableActivity="true" />
 
         <activity
-            android:name=".ui.assistant.AssistantActivity"
+            android:name=".ui.sso.SingleSignOnActivity"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTask"
             android:resizeableActivity="true" />
@@ -208,6 +215,23 @@
                 <category android:name="androidx.car.app.category.CALLING"/>
             </intent-filter>
         </service>-->
+
+        <service android:name=".telecom.TelecomConnectionService"
+            android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.telecom.ConnectionService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".telecom.TelecomRedirectionService"
+            android:exported="true"
+            android:permission="android.permission.BIND_CALL_REDIRECTION_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.CallRedirectionService"/>
+            </intent-filter>
+        </service>
 
         <!-- Receivers -->
 

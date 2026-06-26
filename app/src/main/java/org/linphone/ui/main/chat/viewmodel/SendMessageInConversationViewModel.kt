@@ -120,23 +120,23 @@ class SendMessageInConversationViewModel
     }
 
     val requestKeyboardHidingEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val emojiToAddEvent: MutableLiveData<Event<String>> by lazy {
-        MutableLiveData<Event<String>>()
+        MutableLiveData()
     }
 
     val participantUsernameToAddEvent: MutableLiveData<Event<String>> by lazy {
-        MutableLiveData<Event<String>>()
+        MutableLiveData()
     }
 
     val askRecordAudioPermissionEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val messageSentEvent: MutableLiveData<Event<ChatMessage>> by lazy {
-        MutableLiveData<Event<ChatMessage>>()
+        MutableLiveData()
     }
 
     lateinit var chatRoom: ChatRoom
@@ -525,6 +525,7 @@ class SendMessageInConversationViewModel
                 val forwardedMessage = chatRoom.createForwardMessage(messageToForward)
                 Log.i("$TAG Sending forwarded message")
                 forwardedMessage.send()
+                messageSentEvent.postValue(Event(forwardedMessage))
 
                 showGreenToast(R.string.conversation_message_forwarded_toast, R.drawable.forward)
             }
@@ -625,19 +626,25 @@ class SendMessageInConversationViewModel
         isComputingParticipantsList.postValue(true)
         val participantsList = arrayListOf<ParticipantModel>()
 
-        for (participant in chatRoom.participants) {
-            val model = ParticipantModel(participant.address, onClicked = { clicked ->
-                Log.i("$TAG Clicked on participant [${clicked.sipUri}]")
-                coreContext.postOnCoreThread {
-                    val username = clicked.address.username
-                    if (!username.isNullOrEmpty()) {
-                        participantUsernameToAddEvent.postValue(Event(username.substring(participantsListFilter.length)))
+        if (::chatRoom.isInitialized) {
+            for (participant in chatRoom.participants) {
+                val model = ParticipantModel(participant.address, onClicked = { clicked ->
+                    Log.i("$TAG Clicked on participant [${clicked.sipUri}]")
+                    coreContext.postOnCoreThread {
+                        val username = clicked.address.username
+                        if (!username.isNullOrEmpty()) {
+                            participantUsernameToAddEvent.postValue(Event(username.substring(participantsListFilter.length)))
+                        }
                     }
-                }
-            })
+                })
 
-            if (filter.isEmpty() || participant.address.asStringUriOnly().contains(filter) || model.avatarModel.contactName?.contains(filter) == true) {
-                participantsList.add(model)
+                if (
+                    filter.isEmpty() ||
+                    participant.address.asStringUriOnly().contains(filter) ||
+                    model.avatarModel.contactName?.contains(filter) == true
+                ) {
+                    participantsList.add(model)
+                }
             }
         }
 

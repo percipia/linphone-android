@@ -124,6 +124,13 @@ class CorePreferences
             config.setBool("ui", "show_developer_settings", value)
         }
 
+    @get:AnyThread @set:WorkerThread
+    var useCallRedirectionService: Boolean
+        get() = config.getBool("app", "call_redirection_service", false)
+        set(value) {
+            config.setBool("app", "call_redirection_service", value)
+        }
+
     // Call settings
 
     // This won't be done if bluetooth or wired headset is used
@@ -221,6 +228,13 @@ class CorePreferences
             config.setBool("app", "make_downloaded_images_public_in_gallery", value)
         }
 
+    @get:AnyThread @set:WorkerThread
+    var showChatMessageContentInNotification: Boolean
+        get() = config.getBool("ui", "display_notification_content", true)
+        set(value) {
+            config.setBool("ui", "display_notification_content", value)
+        }
+
     // Conference related
 
     @get:AnyThread @set:WorkerThread
@@ -228,6 +242,13 @@ class CorePreferences
         get() = config.getBool("app", "create_e2e_encrypted_conferences", false)
         set(value) {
             config.setBool("app", "create_e2e_encrypted_conferences", value)
+        }
+
+    @get:AnyThread @set:WorkerThread
+    var showPastMeetings: Boolean
+        get() = config.getBool("ui", "show_past_meetings", false)
+        set(value) {
+            config.setBool("ui", "show_past_meetings", value)
         }
 
     // Contacts related
@@ -477,12 +498,24 @@ class CorePreferences
     val messageReceivedInVisibleConversationNotificationSound: String
         get() = context.filesDir.absolutePath + "/share/sounds/linphone/incoming_chat.wav"
 
+    @get:AnyThread @set:WorkerThread
+    var isMdmConfigured: Boolean
+        get() = config.getBool("app", "mdm_configured", false)
+        set(value) {
+            config.setBool("app", "mdm_configured", value)
+        }
+
     @UiThread
     fun copyAssetsFromPackage() {
         copy("linphonerc_default", configPath)
         copy("linphonerc_factory", factoryConfigPath, true)
         copy("assistant_linphone_default_values", linphoneDefaultValuesPath, true)
         copy("assistant_third_party_default_values", thirdPartyDefaultValuesPath, true)
+    }
+
+    @AnyThread
+    fun resetConfigToDefault() {
+        copy("linphonerc_default", configPath, true)
     }
 
     @AnyThread

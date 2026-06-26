@@ -1,25 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--suppress ALL -->
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/contact_nav_graph"
-    app:startDestination="@id/emptyFragment">
+    app:startDestination="@id/emptyFragment"
+>
 
     <fragment
         android:id="@+id/emptyFragment"
         android:name="org.linphone.ui.main.fragment.EmptyFragment"
         android:label="EmptyFragment"
-        tools:layout="@layout/empty_fragment" />
+        tools:layout="@layout/empty_fragment"
+    />
 
     <fragment
         android:id="@+id/contactFragment"
         android:name="org.linphone.ui.main.contacts.fragment.ContactFragment"
         android:label="ContactFragment"
-        tools:layout="@layout/contact_fragment" >
-        <argument
-            android:name="contactRefKey"
-            app:argType="string" />
+        tools:layout="@layout/contact_fragment"
+    >
+        <argument android:name="contactRefKey" app:argType="string" />
         <action
             android:id="@+id/action_contactFragment_to_editContactFragment"
             app:destination="@id/editContactFragment"
@@ -27,27 +29,65 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
-            app:launchSingleTop="true" />
+            app:launchSingleTop="true"
+        />
         <action
             android:id="@+id/action_contactFragment_to_emptyFragment"
             app:destination="@id/emptyFragment"
             app:popUpTo="@id/contactFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"
+        />
+        <action
+            android:id="@+id/action_contactFragment_to_conversationDocumentsListFragment"
+            app:destination="@id/conversationDocumentsListFragment"
+            app:launchSingleTop="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+        />
+        <action
+            android:id="@+id/action_contactFragment_to_conversationMediaListFragment"
+            app:destination="@id/conversationMediaListFragment"
+            app:launchSingleTop="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+        />
     </fragment>
 
     <action
         android:id="@+id/action_global_contactFragment"
         app:destination="@id/contactFragment"
-        app:launchSingleTop="true" />
+        app:launchSingleTop="true"
+    />
 
     <fragment
         android:id="@+id/editContactFragment"
         android:name="org.linphone.ui.main.contacts.fragment.EditContactFragment"
         android:label="EditContactFragment"
-        tools:layout="@layout/contact_new_or_edit_fragment" >
-        <argument
-            android:name="contactRefKey"
-            app:argType="string" />
+        tools:layout="@layout/contact_new_or_edit_fragment"
+    >
+        <argument android:name="contactRefKey" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/conversationMediaListFragment"
+        android:name="org.linphone.ui.main.chat.fragment.ConversationMediaListFragment"
+        android:label="ConversationMediaListFragment"
+        tools:layout="@layout/chat_media_fragment"
+    >
+        <argument android:name="conversationId" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/conversationDocumentsListFragment"
+        android:name="org.linphone.ui.main.chat.fragment.ConversationDocumentsListFragment"
+        android:label="ConversationDocumentsListFragment"
+        tools:layout="@layout/chat_documents_fragment"
+    >
+        <argument android:name="conversationId" app:argType="string" />
     </fragment>
 
 </navigation>

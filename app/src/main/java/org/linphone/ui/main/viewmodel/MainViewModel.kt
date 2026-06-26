@@ -83,35 +83,35 @@ class MainViewModel
     val filesOrTextPendingSharingLabel = MutableLiveData<String>()
 
     val goBackToCallEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val openDrawerEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val askPostNotificationsPermissionEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val askFullScreenIntentPermissionEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val showNewAccountToastEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val startLoadingContactsEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val lastAccountRemovedEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     val clearFilesOrTextPendingSharingEvent: MutableLiveData<Event<Boolean>> by lazy {
-        MutableLiveData<Event<Boolean>>()
+        MutableLiveData()
     }
 
     private var accountsFound = -1
@@ -422,6 +422,16 @@ class MainViewModel
 
         coreContext.postOnCoreThread { core ->
             core.removeListener(coreListener)
+        }
+    }
+
+    @UiThread
+    fun onMdmConfigRemoved() {
+        coreContext.postOnCoreThread { core ->
+            if (core.accountList.isEmpty()) {
+                Log.w("$TAG MDM configuration removed with no account configured, going into assistant")
+                lastAccountRemovedEvent.postValue(Event(true))
+            }
         }
     }
 

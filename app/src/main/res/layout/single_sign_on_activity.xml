@@ -1,34 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<?xml version="1.0" encoding="utf-8" ?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+>
 
     <data>
         <import type="android.view.View" />
+        <variable name="backClickListener" type="View.OnClickListener" />
         <variable
             name="viewModel"
-            type="org.linphone.ui.main.sso.viewmodel.SingleSignOnViewModel" />
+            type="org.linphone.ui.sso.SingleSignOnViewModel"
+        />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_main2_000">
+        android:background="?attr/color_main2_000"
+    >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+        >
 
             <ImageView
                 style="@style/icon_top_bar_button_style"
                 android:id="@+id/back"
+                android:onClick="@{backClickListener}"
                 android:layout_width="@dimen/top_bar_height"
                 android:layout_height="@dimen/top_bar_height"
                 android:src="@drawable/caret_left"
-                android:visibility="invisible"
+                android:visibility="@{viewModel.operationInProgress ? View.INVISIBLE : View.VISIBLE, default=invisible}"
                 android:contentDescription="@string/content_description_go_back_icon"
                 app:tint="?attr/color_main2_500"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent"
+            />
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/assistant_page_title_style"
@@ -40,20 +48,23 @@
                 app:layout_constraintTop_toTopOf="@id/back"
                 app:layout_constraintBottom_toBottomOf="@id/back"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+            />
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                app:indicatorColor="?attr/color_main1_500"
                 android:indeterminate="true"
+                android:visibility="@{viewModel.operationInProgress ? View.VISIBLE : View.GONE}"
+                app:indicatorColor="?attr/color_main1_500"
                 app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintTop_toBottomOf="@id/title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/message"/>
+                app:layout_constraintBottom_toTopOf="@id/message"
+            />
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style_800"
@@ -66,10 +77,12 @@
                 android:textSize="18sp"
                 android:layout_below="@id/progress"
                 android:layout_centerHorizontal="true"
+                android:visibility="@{viewModel.operationInProgress ? View.VISIBLE : View.GONE}"
                 app:layout_constraintTop_toBottomOf="@id/progress"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+            />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -84,7 +97,8 @@
             app:layout_constraintWidth_max="@dimen/toast_max_width"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+        />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
